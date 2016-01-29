@@ -8,6 +8,7 @@ public class Cube {
 	PApplet p;
 	
 	PVector[] pos;
+	PVector[] pulse;
 	
 	PVector rad;
 	PVector radI;
@@ -63,7 +64,7 @@ public class Cube {
 	float move_val = 0;
 	float move_inc = 0.1f;
 	
-	static boolean show = true;
+	static boolean show = false;
 	
 	float diagSpeedX;
 	float diagSpeedY;
@@ -75,19 +76,19 @@ public class Cube {
 		this.p = _p;
 		
 		thetaX = 0;
-		thetaX_coeff = 0.0001f;
+		thetaX_coeff = 0f;
 		targetX = 0;
 		valX = 0;
 		incX = 0.01f;
 
 		thetaY = 0;
-		thetaY_coeff = 0.0001f;
+		thetaY_coeff = 0f;
 		targetY = 0;
 		valY = 0;
 		incY = 0.01f;
 
 		thetaZ = 0;
-		thetaZ_coeff = 0.0001f;
+		thetaZ_coeff = 0f;
 		targetZ = 0;
 		valZ = 0;
 		incZ = 0.01f;
@@ -105,6 +106,12 @@ public class Cube {
 		start = new PVector(0, 0, 0);
 		end = new PVector(0, 0, 0);
 		trans = new PVector(0, 0, 100);
+		
+		pulse = new PVector[8];
+		
+		for(int i = 0; i < pulse.length; i++){
+			pulse[i] = new PVector(0, 0, 0);
+		}
 	}
 	
 	void update(){
@@ -112,9 +119,9 @@ public class Cube {
 		thetaY = PApplet.lerp(thetaY, targetY, valY);
 		thetaZ = PApplet.lerp(thetaZ, targetZ, valZ);
 		
-		thetaX_coeff = Vertices.c_thetaX_coeff;
-		thetaY_coeff = Vertices.c_thetaY_coeff;
-		thetaZ_coeff = Vertices.c_thetaZ_coeff;
+		thetaX_coeff += Vertices.c_thetaX_coeff;
+		thetaY_coeff += Vertices.c_thetaY_coeff;
+		thetaZ_coeff += Vertices.c_thetaZ_coeff;
 
 		if (valX < 1)
 			valX += incX;
@@ -280,14 +287,14 @@ public class Cube {
 	void drawBox(PVector r){
 		PVector[] pos = new PVector[8];
 		
-		pos[0] = new PVector(r.x*0.5f, r.y*0.5f, -r.z*0.5f);
-		pos[1] = new PVector(-r.x*0.5f, r.y*0.5f, -r.z*0.5f);
-		pos[2] = new PVector(-r.x*0.5f, r.y*0.5f, r.z*0.5f);
-		pos[3] = new PVector(r.x*0.5f, r.y*0.5f, r.z*0.5f);
-		pos[4] = new PVector(r.x*0.5f, -r.y*0.5f, r.z*0.5f);
-		pos[5] = new PVector(-r.x*0.5f, -r.y*0.5f, r.z*0.5f);
-		pos[6] = new PVector(-r.x*0.5f, -r.y*0.5f, -r.z*0.5f);
-		pos[7] = new PVector(r.x*0.5f, -r.y*0.5f, -r.z*0.5f);
+		pos[0] = new PVector(r.x*0.5f+pulse[0].x, r.y*0.5f+pulse[0].y, -r.z*0.5f+pulse[0].z);
+		pos[1] = new PVector(-r.x*0.5f+pulse[1].x, r.y*0.5f+pulse[1].y, -r.z*0.5f+pulse[1].z);
+		pos[2] = new PVector(-r.x*0.5f+pulse[2].x, r.y*0.5f+pulse[2].y, r.z*0.5f+pulse[2].z);
+		pos[3] = new PVector(r.x*0.5f+pulse[3].x, r.y*0.5f+pulse[3].y, r.z*0.5f+pulse[3].z);
+		pos[4] = new PVector(r.x*0.5f+pulse[4].x, -r.y*0.5f+pulse[4].y, r.z*0.5f+pulse[4].z);
+		pos[5] = new PVector(-r.x*0.5f+pulse[5].x, -r.y*0.5f+pulse[5].y, r.z*0.5f+pulse[5].z);
+		pos[6] = new PVector(-r.x*0.5f+pulse[6].x, -r.y*0.5f+pulse[6].y, -r.z*0.5f+pulse[6].z);
+		pos[7] = new PVector(r.x*0.5f+pulse[7].x, -r.y*0.5f+pulse[7].y, -r.z*0.5f+pulse[7].z);
 		
 		for(int i = 0; i < pos.length-1; i++){
 			p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);

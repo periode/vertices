@@ -17,7 +17,16 @@ public class Vertices extends PApplet {
 	int velocity;
 	int note;
 	int value;
-	
+
+	boolean intro = true;
+	boolean outro = false;
+	PVector intro_pos;
+	float intro_height = height*0.20f;
+	float intro_width = width*0.15f;
+
+	ArrayList<Block> blocks;
+	World world;
+
 	static float bpm;
 	float bpm_coeff;
 
@@ -32,30 +41,30 @@ public class Vertices extends PApplet {
 	static int red;
 	static int green;
 	static int blue;
-	
+
 	static int p_h = 50;
 	static int p_s = 10;
 	static int p_b = 50;
-	
+
 	static float p_sw = 1;
 	static float p_sw_coeff;
-	
+
 	static float p_spacing;
 	static float p_spacing_coeff;
-	
+
 	static float p_alpha = 127;
-	
+
 	static float p_lerp_inc_h;
 	static float p_lerp_inc_v;
-	
-	static int p_num_lines = 10;
+
+	static int p_num_lines = 1;
 	static float p_offset = 10;
-	
+
 	//---- CUBE
 	static float c_thetaX_coeff;
 	static float c_thetaY_coeff;
 	static float c_thetaZ_coeff;
-	
+
 	static float c_depth;
 	static float c_height;
 
@@ -69,20 +78,71 @@ public class Vertices extends PApplet {
 		midi_kontrol.setBusName("kontrol");
 
 		bpm = 0.037f;
-		
+
+		intro_pos = new PVector(-intro_width, 0);
+		blocks = new ArrayList<Block>();
+
 		partitions = new ArrayList<Partition>();
 
 		cube = new Cube(this);
 		cubes = new ArrayList<Cube>();
 
 		colorMode(HSB, 360, 100, 100);
-		red = color(0, 80, 50);
-		green = color(120, 80, 50);
-		blue = color(240, 80, 50);
+		red = color(0, 75, 75);
+		green = color(120, 75, 75);
+		blue = color(240, 75, 75);
+
+		background(0, 0, 100);
 	}
 
 	public void settings(){
 		fullScreen(P3D);
+	}
+
+	void introPixels(){
+		if(intro_pos.x < width && noise(frameCount*mouseX*1f) > map(mouseY, 0, height, 1, 0)){
+			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 0, this));
+		}else if(intro_pos.x > width){
+			intro_pos.y += intro_height;
+			intro_pos.x = -intro_width;
+			if(intro_pos.y > height){
+				intro_pos.y = 0;
+				intro_height *= 2f;
+			}
+		}
+
+		intro_pos.x += intro_width;
+	}
+
+	void outroPixels(){
+		if(intro_pos.x < width && noise(frameCount*mouseX*1f) > map(mouseY, 0, height, 1, 0)){
+			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 1, this));
+		}else if(intro_pos.x > width){
+			intro_pos.y += intro_height;
+			intro_pos.x = -intro_width;
+			if(intro_pos.y > height){
+				intro_pos.y = 0;
+				intro_height *= 2f;
+			}
+		}
+
+		intro_pos.x += intro_width;
+	}
+
+	void introBackground(){
+		noStroke();
+		int col1 = color(0, 0, 80-cos(millis()*0.001f+PI/3)*20);
+		int col2 = color(0, 0, 80-cos(millis()*0.001f+PI/3*2)*20);
+		int col3 = color(0, 0, 80-cos(millis()*0.001f)*20);
+
+		fill(col1);
+		rect(0, 0, width, height*0.30f);
+
+		fill(col2);
+		rect(0, height*0.30f, width, height*0.40f);
+
+		fill(col3);
+		rect(0, height*0.70f, width, height*0.30f);
 	}
 
 	public void debug(){
@@ -98,7 +158,7 @@ public class Vertices extends PApplet {
 		text("partitions: "+partitions.size(), 10, 70);
 		text("hsb part:" +p_h+"/"+p_s+"/"+p_b, 10, 80);
 		text("detph: "+c_depth, 10, 90);
-		text("translate: "+cube.trans.y/height, 10, 100);
+		text("blocks: "+blocks.size(), 10, 100);
 	}
 
 	public void update(){
@@ -106,65 +166,78 @@ public class Vertices extends PApplet {
 			if(partitions.get(i) != null)
 				partitions.get(i).update();
 		}
-		
-//		cube.update();
-		
+
+		if(cube.show)
+			cube.update();
+
+		if(intro)
+			introPixels();
+
+		if(outro)
+			outroPixels();
+
+		if(world != null)
+			world.update();
 	}
 
 	public void draw() {
 		noCursor();
 		update();
+
 		background(bg_h, bg_s, bg_b);
+
+		if(intro){
+			introBackground();
+
+			for(int i = 0; i < blocks.size(); i++){
+				blocks.get(i).display();
+			}
+		}
+
+		if(outro){
+			for(int i = 0; i < blocks.size(); i++){
+				blocks.get(i).display();
+			}
+		}
 
 		for(int i = 0; i < partitions.size(); i++){
 			partitions.get(i).display();
 		}
-		
-//		cube.display();
+		if(cube.show)
+			cube.display();
 
-
+		if(world != null){
+			background(0, 0, 100);
+			world.display();
+		}
 		debug();
 	}
 
-	void drawSphere() {
-//		stroke(255, 0, 0, 80);
-//		sphere(rad);
-//		sphere(radI);
-//		rotateZ(mouseX*0.1f);
-//		stroke(0, 255, 0, 80);
-//		sphere(rad);
-//		sphere(radI);
-//		rotateZ(-mouseX*0.2f);
-//		stroke(0, 0, 255, 80);
-//		sphere(rad);
-//		sphere(radI);
-	}
-	
 	void move(String dir){
-	
+
 		if(dir == "up"){
 			if(cube.trans.y > height*0.25f)
 				cube.end.y -= height*0.25f;
 		}
-		
+
 		if(dir == "down"){
 			if(cube.trans.y < height*0.75f)
 				cube.end.y += height*0.25f;
 		}
-		
+
 		if(dir == "right"){
 			if(cube.trans.x < width*0.75f)
 				cube.end.x += width*0.25f;
 		}
-		
+
 		if(dir == "left"){
 			if(cube.trans.x > width*0.25f)
 				cube.end.x -= width*0.25f;
 		}
-		
+
 		cube.move_val = 0;
 	}
-	
+
 	void removePartition(int type, char t){
 		if(t == 's'){
 			for(int i = 0; i < partitions.size(); i++){
@@ -181,22 +254,90 @@ public class Vertices extends PApplet {
 			}
 		}
 	}
-	
-	void reset(String orient, int dir){
-		if(orient == "horizontal"){
-			
-		}else if(orient == "vertical"){
-			
-		}else{
-			
+
+	void reset(int orient, int dir){
+
+		for(int i = 0; i < partitions.size(); i++){
+			Partition pa = partitions.get(i);
+			if(pa.type == orient && pa.orientation == dir)
+				pa.resetLerp();
+			else if(orient == 2 && pa.type == 2)
+				pa.resetLerp();
 		}
 	}
-	
+
 	void toggleOscillation(String s){
 		if(s == "spacing"){
 			Partition.oscillating_space_cos = !Partition.oscillating_space_cos;
 		}else{
 			Partition.oscillating_weight_cos = !Partition.oscillating_weight_cos;
+		}
+	}
+	
+	void unify(float value, int type){
+		float v = map(value, 0, 127, 0, 1);
+		println(v);
+		for(int i = 0; i < partitions.size(); i++){
+			if(partitions.get(i).type == type){
+				partitions.get(i).unifier = v;
+			}
+		}
+	}
+
+	public void keyPressed(){
+		if(key == 'i'){
+			intro = false;
+			blocks.clear();
+		}
+
+		if(key =='p'){
+			world = new World(this);
+		}
+
+		if(key == 'o'){
+			outro = true;
+			intro_pos = new PVector(0, 0);
+		}
+
+		if(key == 'r'){
+			fill(red);
+			noStroke();
+			rect(0, 0, width, height*0.30f);
+		}
+
+		if(key == 'g'){
+			fill(green);
+			noStroke();
+			rect(0, height*0.30f, width, height*0.40f);
+		}
+
+		if(key == 'b'){
+			fill(blue);
+			noStroke();
+			rect(0, height*0.70f, width, height*0.30f);
+		}
+
+		if(key == 'd')
+			world.det--;
+		
+		if(key == 'c')
+			world.det++;
+		
+		if(key == ' ')
+			moveVertex(2);
+	}
+	
+	public void moveVertex(int t){
+		if(t == 0){
+			cube.pulse[(int)random(cube.pulse.length)] = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
+		}else if(t == 1){
+			for(int i = 0; i < cube.pulse.length; i++){
+				cube.pulse[i] = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
+			}
+		}else{
+			for(int i = 0; i < cube.pulse.length; i++){
+				cube.pulse[i] = new PVector(0, 0, 0);
+			}
 		}
 	}
 
@@ -234,30 +375,30 @@ public class Vertices extends PApplet {
 				break;
 			case 8://horizontal left to right -------------------- SECOND ROW
 				//reset lerp left to right
-				reset("horizontal", 0);
+				reset(0, 0);
 				break;
 			case 9://horizontal right to left
 				//reset right to left
-				reset("horizontal", 1);
+				reset(0, 1);
 				break;
 			case 10://vertical top to bottom
 				//reset lerp
-				reset("vertical", 0);
+				reset(1, 0);
 				break;
 			case 11://vertical bottom to top
-				reset("vertical", 1);
+				reset(1, 1);
 				break;
 			case 12://diagonals
-				
+				reset(2, 0);
 				break;
 			case 13:
-				
+				reset(2, 0);
 				break;
 			case 14:
-				
+				reset(2, 0);
 				break;
 			case 15:
-				
+				reset(2, 0);
 				break;
 			case 16://horizontal left to right -------------------- THIRD ROW
 				removePartition(0, 's');
@@ -278,10 +419,14 @@ public class Vertices extends PApplet {
 				removePartition(2, 'a');
 				break;
 			case 22:
-				
+
 				break;
 			case 23:
-				
+
+				break;
+			case 42:
+				//toggle unicolor
+				Partition.unicolor = !Partition.unicolor;
 				break;
 			case 43:
 				//toggle tan/cos for spacing
@@ -290,6 +435,7 @@ public class Vertices extends PApplet {
 			case 44:
 				//toggle tan/cos for strokes
 				toggleOscillation("weight");
+				break;
 			default:
 				break;
 			}
@@ -314,7 +460,7 @@ public class Vertices extends PApplet {
 					move("up");
 					break;
 				case 48:
-					//move one vertex
+					moveVertex(0);
 					break;
 				case 49:
 					cube.radI = new PVector(0, 0, 0);
@@ -336,7 +482,7 @@ public class Vertices extends PApplet {
 					move("down");
 					break;
 				case 40:
-					//move all vertices
+					moveVertex(1);
 					break;
 				case 41:
 					cube.radO = new PVector(width, width, width);
@@ -396,57 +542,112 @@ public class Vertices extends PApplet {
 		value = v;
 
 		if(s == "kontrol"){
-			switch(n){
-			case 0://--------------------------------FADERS
-				p_h = (int) map(v, 0, 127, 0, 360);
-				break;
-			case 1:
-				p_s = (int) map(v, 0, 127, 0, 100);
-				break;
-			case 2:
-				p_b = (int) map(v, 0, 127, 0, 100);
-				break;
-			case 3:
-				p_sw = map(v, 0, 127, 1, 20f);
-				break;
-			case 4:
-				p_spacing = map(v, 0, 127, 0, 100f);
-				break;
-			case 5:
-				p_lerp_inc_h = map(v, 0, 127, 0.001f, 0.1f);
-				break;
-			case 6:
-				p_lerp_inc_h = map(v, 0, 127, 0.001f, 0.1f);
-				break;
-			case 7:
-				p_alpha = map(v, 0, 127, 0, 255);
-				break;
-			case 8://--------------------------------KNOBS
-				bg_h = (int) map(v, 0, 127, 0, 360);
-				break;
-			case 9:
-				bg_s = (int) map(v, 0, 127, 0, 100);
-				break;
-			case 10:
-				bg_b = (int) map(v, 0, 127, 0, 100);
-				break;
-			case 11:
-				p_sw_coeff = map(v, 0, 127, 0, 20);
-				break;
-			case 12:
-				p_spacing_coeff = map(v, 0, 127, 0, 20f);
-				break;
-			case 13:
-				p_num_lines = (int)map(v, 0, 127, 1, 100);
-				break;
-			case 14:
-				p_offset = map(v, 0, 127, 0, 50);
-				break;
-			case 15:
-				bpm =  map(v, 0, 127, 0.02f, 0.04f);
-				break;
-			default:
-				break;
+			if(!outro){
+				switch(n){
+				case 0://--------------------------------FADERS
+					unify(v, 0);
+					break;
+				case 1:
+					unify(v, 1);
+					break;
+				case 2:
+					unify(v, 2);
+					break;
+				case 3:
+					p_sw = map(v, 0, 127, 1, 20f);
+					break;
+				case 4:
+					p_spacing = map(v, 0, 127, 0, 100f);
+					break;
+				case 5:
+					p_lerp_inc_h = map(v, 0, 127, 0.0001f, 0.1f);
+					break;
+				case 6:
+					p_lerp_inc_v = map(v, 0, 127, 0.0001f, 0.1f);
+					break;
+				case 7:
+					p_alpha = map(v, 0, 127, 0, 255);
+					break;
+				case 8://--------------------------------KNOBS
+					bg_h = (int) map(v, 0, 127, 0, 360);
+					break;
+				case 9:
+					bg_s = (int) map(v, 0, 127, 0, 100);
+					break;
+				case 10:
+					bg_b = (int) map(v, 0, 127, 0, 100);
+					break;
+				case 11:
+					p_sw_coeff = map(v, 0, 127, 0, 20);
+					break;
+				case 12:
+					p_spacing_coeff = map(v, 0, 127, 0, 20f);
+					break;
+				case 13:
+					p_num_lines = (int)map(v, 0, 127, 1, 100);
+					break;
+				case 14:
+					p_offset = map(v, 0, 127, 0, 50);
+					break;
+				case 15:
+					bpm =  map(v, 0, 127, 0.02f, 0.04f);
+					break;
+				default:
+					break;
+				}
+			}else{
+				switch(n){
+				case 0://--------------------------------FADERS
+					world.alpha = map(v, 0, 127, 0, 255);
+					break;
+				case 1:
+					world.rad = map(v, 0, 127, 0, width*2f);
+					break;
+				case 2:
+					world.sw = map(v, 0, 127, 1, 5);
+					break;
+				case 3:
+					world.det = (int)map(v, 0, 127, 100, 0);
+					break;
+				case 4:
+					world.theta_inc.x = map(v, 0, 127, 0, 0.01f);
+					break;
+				case 5:
+					world.theta_inc.y = map(v, 0, 127, 0, 0.01f);
+					break;
+				case 6:
+					world.theta_inc.z = map(v, 0, 127, 0, 0.01f);
+					break;
+				case 7:
+					world.closing = map(v, 0, 127, 0, height*0.5f);
+					break;
+				case 8://--------------------------------KNOBS
+					bg_h = (int) map(v, 0, 127, 0, 360);
+					break;
+				case 9:
+					bg_s = (int) map(v, 0, 127, 0, 100);
+					break;
+				case 10:
+					bg_b = (int) map(v, 0, 127, 0, 100);
+					break;
+				case 11:
+					p_sw_coeff = map(v, 0, 127, 0, 20);
+					break;
+				case 12:
+					p_spacing_coeff = map(v, 0, 127, 0, 20f);
+					break;
+				case 13:
+					p_num_lines = (int)map(v, 0, 127, 1, 100);
+					break;
+				case 14:
+					p_offset = map(v, 0, 127, 0, 50);
+					break;
+				case 15:
+					bpm =  map(v, 0, 127, 0.02f, 0.04f);
+					break;
+				default:
+					break;
+				}
 			}
 		}else if(s == "beatstep"){
 			v = v - 64;//normalize
@@ -463,12 +664,15 @@ public class Vertices extends PApplet {
 					break;
 				case 11:
 					c_thetaX_coeff += v*0.000001f;
+					c_thetaX_coeff = max(c_thetaX_coeff, 0);
 					break;
 				case 12:
 					c_thetaY_coeff += v*0.000001f;
+					c_thetaY_coeff = max(c_thetaY_coeff, 0);
 					break;
 				case 13:
 					c_thetaZ_coeff += v*0.000001f;
+					c_thetaZ_coeff = max(c_thetaZ_coeff, 0);
 					break;
 				case 14:
 					cube.radIncI += v*0.5f;
