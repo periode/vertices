@@ -19,6 +19,7 @@ public class Vertices extends PApplet {
 	int value;
 
 	boolean intro = true;
+	boolean init = false;
 	boolean outro = false;
 	PVector intro_pos;
 	float intro_height = height*0.20f;
@@ -52,7 +53,7 @@ public class Vertices extends PApplet {
 	static float p_spacing;
 	static float p_spacing_coeff;
 
-	static float p_alpha = 127;
+	static float p_alpha = 255;
 
 	static float p_lerp_inc_h;
 	static float p_lerp_inc_v;
@@ -170,7 +171,7 @@ public class Vertices extends PApplet {
 		if(cube.show)
 			cube.update();
 
-		if(intro)
+		if(intro && init)
 			introPixels();
 
 		if(outro)
@@ -424,6 +425,9 @@ public class Vertices extends PApplet {
 			case 23:
 
 				break;
+			case 41:
+				init = true;
+				break;
 			case 42:
 				//toggle unicolor
 				Partition.unicolor = !Partition.unicolor;
@@ -653,8 +657,8 @@ public class Vertices extends PApplet {
 			v = v - 64;//normalize
 
 			if(n == 7){//reset stuff
-				//					if(v < -1)
-				//					else if(v > 1)
+				cube.cube_scale += v*0.01f;
+				cube.cube_scale = constrain(cube.cube_scale, 0, 1);
 			}
 
 			if(c == 0){

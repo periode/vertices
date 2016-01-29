@@ -70,6 +70,8 @@ public class Cube {
 	float diagSpeedY;
 	float diagSpeedZ;
 	
+	float cube_scale = 0;
+	
 	Cube(){}
 	
 	Cube(PApplet _p){
@@ -198,6 +200,7 @@ public class Cube {
 		p.rotateX(thetaX+p.millis()*thetaX_coeff);
 		p.rotateY(thetaY+p.millis()*thetaY_coeff);
 		p.rotateZ(thetaZ+p.millis()*thetaZ_coeff);
+		p.scale(cube_scale);
 		
 		if(show)
 			drawCube();

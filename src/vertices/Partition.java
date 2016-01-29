@@ -232,7 +232,6 @@ public class Partition {
 		}
 		p.popMatrix();
 		
-		p.text(unifier, 100, 100);
 	}
 
 	public void resetLerp(){
