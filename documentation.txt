@@ -1,0 +1,72 @@
+snow
+
+idea: start drawing shit inside of sphere: circle or lines and a shit load with lerp components
+
+intro with lines
+first break: flat cube
+then first beat = 3d cube 
+second break  = other text
+second beat just the circle in slow mo
+and out
+
+
+DOC:
+i = sets intro to false and clears blocks array
+e = toggles entracte
+p = creates a world
+o = sets outro to true, sets intro_pos to (0, 0, 0)
+r = sets red rectangle background
+g = sets green rect background
+b = sets blue background background
+d = less detail on the world
+c = more detail on the world
+SPACE= move vertex for cube
+
+—
+KONTROL NOTEON
+first row of control is adding lines
+second row is resetting leap
+third is removing
+41 = sets intro_pixels to true which means pixels
+42 = toggles color mode
+43 = toggles oscillation for spacing
+44 = toggles oscillation for weight
+
+KONTROL CONTROLLER CHANGE
+if not outro:
+faders:
+0 = unify - sets spacing of lines
+1 = unify
+2 = unify
+3 = map stroke weight
+4 = map spacing of stroke
+5 = map lerp increase for height
+6 = map lerp increase for width
+7 = map alpha
+knobs:
+8 = bg hue
+9 = bg saturation
+10 = bg brightness
+11 = stroke weight coefficient
+12 = spacing coefficient
+13 = number of lines
+14 = offset
+15 = bpm
+
+
+—
+BEAT STEP NOTEON
+44 = rotate cube x
+45 = rotate cube y
+46 = rotate cube z
+47 = move up
+48 = move vertex
+49 = cube radI is reset to 0
+36 = shows cubes
+37 = move left
+38 = move right
+39 = move down
+40 = move vertex
+41 = cube rad0 set to max
+
+
