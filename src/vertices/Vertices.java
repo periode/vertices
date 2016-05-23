@@ -11,6 +11,8 @@ public class Vertices extends PApplet {
 
 	MidiBus midi_beatstep;
 	MidiBus midi_kontrol;
+	
+	boolean entracte =  true;
 
 	int channel;
 	int pitch;
@@ -18,12 +20,12 @@ public class Vertices extends PApplet {
 	int note;
 	int value;
 
-	boolean intro = true;
-	boolean init = false;
+	boolean intro = false;
+	boolean intro_pixels = false;
 	boolean outro = false;
 	PVector intro_pos;
-	float intro_height = height*0.20f;
-	float intro_width = width*0.15f;
+	float intro_height = height*0.275f;
+	float intro_width = width*0.225f;
 
 	ArrayList<Block> blocks;
 	World world;
@@ -158,8 +160,11 @@ public class Vertices extends PApplet {
 		text("val: "+value, 10, 60);
 		text("partitions: "+partitions.size(), 10, 70);
 		text("hsb part:" +p_h+"/"+p_s+"/"+p_b, 10, 80);
-		text("detph: "+c_depth, 10, 90);
-		text("blocks: "+blocks.size(), 10, 100);
+		text("rad.z: "+cube.rad.x, 10, 90);
+		text("rad.y: "+cube.rad.y, 10, 100);
+		text("max_width: "+cube.max_width, 10, 110);
+		text("max_depth: "+cube.max_depth, 10, 120);
+		text("blocks: "+blocks.size(), 10, 130);
 	}
 
 	public void update(){
@@ -168,10 +173,10 @@ public class Vertices extends PApplet {
 				partitions.get(i).update();
 		}
 
-		if(cube.show)
+		if(cube != null)
 			cube.update();
 
-		if(intro && init)
+		if(intro && intro_pixels)
 			introPixels();
 
 		if(outro)
@@ -187,13 +192,7 @@ public class Vertices extends PApplet {
 
 		background(bg_h, bg_s, bg_b);
 
-		if(intro){
-			introBackground();
 
-			for(int i = 0; i < blocks.size(); i++){
-				blocks.get(i).display();
-			}
-		}
 
 		if(outro){
 			for(int i = 0; i < blocks.size(); i++){
@@ -204,14 +203,32 @@ public class Vertices extends PApplet {
 		for(int i = 0; i < partitions.size(); i++){
 			partitions.get(i).display();
 		}
-		if(cube.show)
+		
+		if(cube != null)
 			cube.display();
 
 		if(world != null){
 			background(0, 0, 100);
 			world.display();
 		}
-		debug();
+
+		
+		if(entracte){
+			fill(0);
+			noStroke();
+			rect(0, 0, width*2, height*2);
+		}
+		
+		if(intro){
+			introBackground();
+			background(0, 0, 100);
+
+			for(int i = 0; i < blocks.size(); i++){
+				blocks.get(i).display();
+			}
+		}
+		
+//		debug();
 	}
 
 	void move(String dir){
@@ -286,12 +303,19 @@ public class Vertices extends PApplet {
 	}
 
 	public void keyPressed(){
+		
+		if(key == 'e')
+			entracte = !entracte;
+		
 		if(key == 'i'){
 			intro = false;
 			blocks.clear();
 		}
+		
+		if(key == 'p')
+			intro_pixels = !intro_pixels;
 
-		if(key =='p'){
+		if(key =='w'){
 			world = new World(this);
 		}
 
@@ -318,14 +342,28 @@ public class Vertices extends PApplet {
 			rect(0, height*0.70f, width, height*0.30f);
 		}
 
-		if(key == 'd')
+		if(key == 's')
 			world.det--;
 		
-		if(key == 'c')
+		if(key == 'x')
 			world.det++;
+		
+		if(key == 'c'){
+			cube = new Cube(this);
+			cubes = new ArrayList<Cube>();
+		}
+			
 		
 		if(key == ' ')
 			moveVertex(2);
+	}
+	
+	public void resetCube(){
+		cube.pulse = new PVector[8];
+		
+		for(int i = 0; i < cube.pulse.length; i++){
+			cube.pulse[i] = new PVector(0, 0, 0);
+		}
 	}
 	
 	public void moveVertex(int t){
@@ -336,6 +374,7 @@ public class Vertices extends PApplet {
 				cube.pulse[i] = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
 			}
 		}else{
+			println("reset");
 			for(int i = 0; i < cube.pulse.length; i++){
 				cube.pulse[i] = new PVector(0, 0, 0);
 			}
@@ -365,13 +404,13 @@ public class Vertices extends PApplet {
 			case 4://diagonals
 				partitions.add(new Partition(p_num_lines, p_offset, 2, 0, this));
 				break;
-			case 5:
+			case 5://other diagonals
 				partitions.add(new Partition(p_num_lines, p_offset, 2, 1, this));
 				break;
-			case 6:
+			case 6://etc
 				partitions.add(new Partition(p_num_lines, p_offset, 2, 2, this));
 				break;
-			case 7:
+			case 7://...
 				partitions.add(new Partition(p_num_lines, p_offset, 2, 3, this));
 				break;
 			case 8://horizontal left to right -------------------- SECOND ROW
@@ -426,7 +465,7 @@ public class Vertices extends PApplet {
 
 				break;
 			case 41:
-				init = true;
+				intro_pixels = true;
 				break;
 			case 42:
 				//toggle unicolor
@@ -474,13 +513,16 @@ public class Vertices extends PApplet {
 				case 51:
 					break;
 				case 36://----SECOND ROW
-					Cube.show = !Cube.show;
+//					Cube.show = !Cube.show;
+					resetCube();
 					break;
 				case 37:
-					move("left");
+//					move("left");
+					cube.max_width = width*0.2f;
 					break;
 				case 38:
-					move("right");
+//					move("right");
+					cube.max_depth = width*0.2f;
 					break;
 				case 39:
 					move("down");
@@ -667,16 +709,16 @@ public class Vertices extends PApplet {
 					c_depth += v*1f;
 					break;
 				case 11:
-					c_thetaX_coeff += v*0.000001f;
-					c_thetaX_coeff = max(c_thetaX_coeff, 0);
+					c_thetaX_coeff = map(v, 0, 127, 0, 0.001f);
+					c_thetaX_coeff = constrain(c_thetaX_coeff, 0, 0.1f);
 					break;
 				case 12:
-					c_thetaY_coeff += v*0.000001f;
-					c_thetaY_coeff = max(c_thetaY_coeff, 0);
+					c_thetaY_coeff = map(v, 0, 127, 0, 0.001f);
+					c_thetaY_coeff = constrain(c_thetaY_coeff, 0, 0.1f);
 					break;
 				case 13:
-					c_thetaZ_coeff += v*0.000001f;
-					c_thetaZ_coeff = max(c_thetaZ_coeff, 0);
+					c_thetaZ_coeff = map(v, 0, 127, 0, 0.001f);
+					c_thetaZ_coeff = constrain(c_thetaZ_coeff, 0, 0.1f);
 					break;
 				case 14:
 					cube.radIncI += v*0.5f;
@@ -717,7 +759,7 @@ public class Vertices extends PApplet {
 				default:
 					break;
 				}
-			}else if(c == 1){ // ------------------ LINKS
+			}else if(c == 1){ // ------------------ POTENTIALLY SOME WORLD STUFF
 				switch(n){
 				case 10:
 					break;

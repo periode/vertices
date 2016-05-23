@@ -70,7 +70,10 @@ public class Cube {
 	float diagSpeedY;
 	float diagSpeedZ;
 	
-	float cube_scale = 0;
+	float cube_scale = 0.5f;
+	
+	float max_depth = 0;
+	float max_width = 0;
 	
 	Cube(){}
 	
@@ -95,7 +98,7 @@ public class Cube {
 		valZ = 0;
 		incZ = 0.01f;
 		
-		rad = new PVector(200, 200, Vertices.c_depth);
+		rad = new PVector(p.width*0.2f, 0, 0);
 		radI = new PVector(0, 0, 0);
 		radO = new PVector (p.width, p.width, p.width);
 		
@@ -121,9 +124,9 @@ public class Cube {
 		thetaY = PApplet.lerp(thetaY, targetY, valY);
 		thetaZ = PApplet.lerp(thetaZ, targetZ, valZ);
 		
-		thetaX_coeff += Vertices.c_thetaX_coeff;
-		thetaY_coeff += Vertices.c_thetaY_coeff;
-		thetaZ_coeff += Vertices.c_thetaZ_coeff;
+		thetaX_coeff = Vertices.c_thetaX_coeff;
+		thetaY_coeff = Vertices.c_thetaY_coeff;
+		thetaZ_coeff = Vertices.c_thetaZ_coeff;
 
 		if (valX < 1)
 			valX += incX;
@@ -163,8 +166,17 @@ public class Cube {
 		else
 			radO.z = rad.z;
 		
-		rad.z = PApplet.constrain(Vertices.c_depth, 0, rad.x);
-		rad.y = PApplet.constrain(Vertices.c_height, 0, rad.x);
+		if(rad.z < max_depth)
+			rad.z += 10f;
+		
+		if(rad.y < max_width)
+			rad.y += 10f;
+		
+//		rad.z = PApplet.constrain(Vertices.c_depth, 0, rad.x);
+//		rad.y = PApplet.constrain(Vertices.c_height, 0, rad.x);
+		rad.z = PApplet.constrain(rad.z, 0, rad.x);
+		rad.y = PApplet.constrain(rad.y, 0, rad.x);
+		
 		
 		diagCoeffX = PApplet.constrain(diagCoeffX, 0, 10);
 		diagCoeffY = PApplet.constrain(diagCoeffY, 0, 10);
@@ -202,7 +214,7 @@ public class Cube {
 		p.rotateZ(thetaZ+p.millis()*thetaZ_coeff);
 		p.scale(cube_scale);
 		
-		if(show)
+//		if(show)
 			drawCube();
 		
 		p.popMatrix();

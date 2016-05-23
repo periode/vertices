@@ -22,7 +22,7 @@ public class Block {
 		if(_col == 0)
 			col = p.color(0, 0, 0);
 		else
-			col = p.color(0, 0, 100);
+			col = p.color(0, 100, 100);
 	}
 	
 	void display(){
