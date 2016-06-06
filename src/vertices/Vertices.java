@@ -27,8 +27,17 @@ public class Vertices extends PApplet {
 	float intro_height = height*0.275f;
 	float intro_width = width*0.225f;
 
-	ArrayList<Block> blocks;
+	static ArrayList<Block> blocks;
+	float blocks_start = 0;
+	float blocks_timer = 1;
 	World world;
+	
+	ArrayList<Dash> dashes;
+	float dash_start = 0;
+	float dash_timer = 1;
+	int dash_seed;
+	
+	Grid grid;
 
 	static float bpm;
 	float bpm_coeff;
@@ -81,9 +90,23 @@ public class Vertices extends PApplet {
 		midi_kontrol.setBusName("kontrol");
 
 		bpm = 0.037f;
+		
+		grid = new Grid(this);
 
 		intro_pos = new PVector(-intro_width, 0);
 		blocks = new ArrayList<Block>();
+		int i = 0;
+		for(int x = 0; x < grid.cols; x++){
+			for(int y = 0; y < grid.rows; y++){
+				blocks.add(new Block(new PVector(x*grid.xstep, y*grid.xstep), grid.xstep, grid.xstep, 0, i, this));
+				i++;
+			}
+		}
+		println("blocks: "+blocks.size());
+		
+		dash_seed = (int)random(grid.points.length-grid.cols);
+			
+		dashes = new ArrayList<Dash>();
 
 		partitions = new ArrayList<Partition>();
 
@@ -104,7 +127,7 @@ public class Vertices extends PApplet {
 
 	void introPixels(){
 		if(intro_pos.x < width && noise(frameCount*mouseX*1f) > map(mouseY, 0, height, 1, 0)){
-			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 0, this));
+			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 0, 0, this));
 		}else if(intro_pos.x > width){
 			intro_pos.y += intro_height;
 			intro_pos.x = -intro_width;
@@ -119,7 +142,7 @@ public class Vertices extends PApplet {
 
 	void outroPixels(){
 		if(intro_pos.x < width && noise(frameCount*mouseX*1f) > map(mouseY, 0, height, 1, 0)){
-			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 1, this));
+			blocks.add(new Block(intro_pos.copy(), intro_width, intro_height, 1, 0, this));
 		}else if(intro_pos.x > width){
 			intro_pos.y += intro_height;
 			intro_pos.x = -intro_width;
@@ -175,15 +198,50 @@ public class Vertices extends PApplet {
 
 		if(cube != null)
 			cube.update();
+		
+		for(int i = 0; i < blocks.size(); i++){
+			if(blocks.get(i).alpha < 0)
+				blocks.remove(i);
+			else
+				blocks.get(i).update();
+		}
 
-		if(intro && intro_pixels)
-			introPixels();
-
-		if(outro)
-			outroPixels();
+//		if(intro && intro_pixels)
+//			introPixels();
+//
+//		if(outro)
+//			outroPixels();
 
 		if(world != null)
 			world.update();
+		
+		for(int i = 0; i < dashes.size(); i++){
+			Dash d = dashes.get(i);
+			if(millis() - d.birth > d.life){
+				dashes.remove(i);
+			}
+		}
+		
+		
+		if(millis() - dash_start > dash_timer){
+			addDash();
+			dash_start = millis();
+		}
+			
+		
+		if(millis() - blocks_start > blocks_timer){
+			removeBlocks();
+			blocks_start = millis();
+		}
+	}
+	
+	public boolean timer(float timer, float start){
+		if(millis() - start > timer){
+			start = millis();
+			return true;
+		}else{
+			return false;
+		}
 	}
 
 	public void draw() {
@@ -191,14 +249,21 @@ public class Vertices extends PApplet {
 		update();
 
 		background(bg_h, bg_s, bg_b);
-
-
-
-		if(outro){
-			for(int i = 0; i < blocks.size(); i++){
-				blocks.get(i).display();
-			}
+		
+//		grid.display();
+		
+		for(int i = 0; i < dashes.size(); i++){
+			dashes.get(i).display();
 		}
+
+
+//		if(outro){
+//			for(int i = 0; i < blocks.size(); i++){
+//				blocks.get(i).display();
+//			}
+//		}
+		
+
 
 		for(int i = 0; i < partitions.size(); i++){
 			partitions.get(i).display();
@@ -219,16 +284,51 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-		if(intro){
-			introBackground();
-			background(0, 0, 100);
-
-			for(int i = 0; i < blocks.size(); i++){
-				blocks.get(i).display();
-			}
+		for(int i = 0; i < blocks.size(); i++){
+			Block b = blocks.get(i);
+			b.display();
 		}
 		
+//		if(intro){
+//			introBackground();
+//			background(0, 0, 100);
+//
+//			for(int i = 0; i < blocks.size(); i++){
+//				blocks.get(i).display();
+//			}
+//		}
+		
+
+
+		
 //		debug();
+	}
+	
+	void addDash(){
+		int s = (int)random(grid.points.length-grid.cols);
+		int e = dash_seed;
+		
+		float r = random(1);
+		if(r < 0.25f){
+			e = s - 1;
+		}else if(r < 0.5f){
+			e = s + 1;
+		}else if(r < 0.75f){
+			e = s - grid.rows - 1;
+		}else{
+			e = s + grid.rows + 1;
+		}
+		
+		dash_seed = constrain(dash_seed, 0, grid.points.length);
+		e = constrain(e, 0, grid.points.length-1);
+		
+		PVector start = grid.points[s];
+		PVector end = grid.points[e];
+		
+		if(start.y != 0 && end.y != 0 && start.y != height && end.y != height)
+			dashes.add(new Dash(start, end, this));
+		
+		dash_seed = e;
 	}
 
 	void move(String dir){
@@ -309,7 +409,7 @@ public class Vertices extends PApplet {
 		
 		if(key == 'i'){
 			intro = false;
-			blocks.clear();
+//			blocks.clear();
 		}
 		
 		if(key == 'p')
@@ -354,10 +454,23 @@ public class Vertices extends PApplet {
 		}
 			
 		
-		if(key == ' ')
-			moveVertex(2);
+		if(key == ' '){
+			removeBlocks();
+		}
+//			moveVertex(2);
+
+			
 	}
 	
+	private void removeBlocks() {
+		int u = 0;
+		while(u < 1){
+			if(blocks.size() != 0)
+				blocks.get((int)random(blocks.size())).fading = true;
+			u++;
+		}
+	}
+
 	public void resetCube(){
 		cube.pulse = new PVector[8];
 		

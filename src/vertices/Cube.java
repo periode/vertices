@@ -221,7 +221,8 @@ public class Cube {
 	}
 	
 	void drawCube() {
-		p.strokeWeight(sw);
+//		p.strokeWeight(sw);
+		p.strokeWeight(3);
 		
 		p.stroke(red);//RED
 		

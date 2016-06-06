@@ -10,24 +10,48 @@ public class Block {
 	float h;
 	
 	int col;
+	int scol;
+	float alpha = 255;
+	
+	boolean fading = false;
+	int index = 0;
 	
 	Block(){}
 	
-	Block(PVector _pos, float _w, float _h, int _col, PApplet _p){
+	Block(PVector _pos, float _w, float _h, int _col, int _i, PApplet _p){
+		this.index = _i;
 		this.p = _p;
 		this.pos = _pos;
 		this.w = _w;
 		this.h = _h;
 		
-		if(_col == 0)
-			col = p.color(0, 0, 0);
-		else
-			col = p.color(0, 100, 100);
+		p.colorMode(p.HSB, 360, 100, 100);
+		scol = p.color(0, 0, 100*_col);
+		col = p.color(0, 0, p.abs(100-100*_col));
+	}
+	
+	void update(){
+		alpha-=0.25f;
+		if(fading){
+			if(alpha > 250)
+				alpha-=60;
+			else{
+				alpha -= 0.1f;
+			}
+				if(this.w > 0){
+					this.w-=1;
+					this.h-=1;
+				}
+		}
 	}
 	
 	void display(){
-		p.noStroke();
-		p.fill(col);
+//		p.noStroke();
+		p.strokeWeight(2);
+		p.stroke(col, alpha);
+//		p.fill(col, alpha);
+//		p.rectMode(p.CENTER);
+		p.noFill();
 		p.rect(this.pos.x, this.pos.y, this.w, this.h);
 	}
 }
