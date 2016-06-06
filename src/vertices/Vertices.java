@@ -253,7 +253,7 @@ public class Vertices extends PApplet {
 //		grid.display();
 		
 		for(int i = 0; i < dashes.size(); i++){
-			dashes.get(i).display();
+//			dashes.get(i).display();
 		}
 
 

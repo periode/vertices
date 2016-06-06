@@ -31,12 +31,12 @@ public class Block {
 	}
 	
 	void update(){
-		alpha-=0.25f;
+		alpha-=0.06f;
 		if(fading){
 			if(alpha > 250)
 				alpha-=60;
 			else{
-				alpha -= 0.1f;
+				alpha -= 0.075f;
 			}
 				if(this.w > 0){
 					this.w-=1;
@@ -47,7 +47,7 @@ public class Block {
 	
 	void display(){
 //		p.noStroke();
-		p.strokeWeight(2);
+		p.strokeWeight((int)p.map(p.mouseX, 0, p.width, 1, 10));
 		p.stroke(col, alpha);
 //		p.fill(col, alpha);
 //		p.rectMode(p.CENTER);
