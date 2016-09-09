@@ -8,10 +8,13 @@ public class Block {
 	PVector pos;
 	float w;
 	float h;
+	int dirH;
+	int dirW;
 	
 	int col;
 	int scol;
 	float alpha = 255;
+	float saved_alpha = 255;
 	
 	boolean fading = false;
 	int index = 0;
@@ -24,6 +27,20 @@ public class Block {
 		this.pos = _pos;
 		this.w = _w;
 		this.h = _h;
+		float r = p.random(1);
+		if(r<0.25){
+			this.dirH = 1;
+			this.dirW = 1;
+		}else if(r < 0.5){
+			this.dirH = -1;
+			this.dirW = -1;
+		}else if(r < 0.75){
+			this.dirH = -1;
+			this.dirW = 1;
+		}else{
+			this.dirH = 1;
+			this.dirW = -1;
+		}
 		
 		p.colorMode(p.HSB, 360, 100, 100);
 		scol = p.color(0, 0, 100*_col);
@@ -31,27 +48,31 @@ public class Block {
 	}
 	
 	void update(){
-		alpha-=0.06f;
+		alpha-=0.1f;
 		if(fading){
 			if(alpha > 250)
 				alpha-=60;
 			else{
-				alpha -= 0.075f;
+				alpha -= 0.4f;
 			}
 				if(this.w > 0){
-					this.w-=1;
-					this.h-=1;
+//					this.w-=1*this.dirW;
+//					this.h-=1*this.dirH;
 				}
+		}else{
+			if(alpha < 255)
+				alpha+=3;
 		}
+		
 	}
 	
 	void display(){
 //		p.noStroke();
-		p.strokeWeight((int)p.map(p.mouseX, 0, p.width, 1, 10));
+		p.strokeWeight(6);
 		p.stroke(col, alpha);
 //		p.fill(col, alpha);
 //		p.rectMode(p.CENTER);
 		p.noFill();
-		p.rect(this.pos.x, this.pos.y, this.w, this.h);
+		p.rect(this.pos.x, this.pos.y, p.constrain(this.w, 0, 2), p.constrain(this.h, 0, 2));
 	}
 }

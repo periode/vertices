@@ -79,6 +79,9 @@ public class Vertices extends PApplet {
 
 	static float c_depth;
 	static float c_height;
+	
+	//---- TIME
+	static float ts_end_intro = 111000; //1'51"
 
 	public void setup() {
 		noCursor();
@@ -252,9 +255,9 @@ public class Vertices extends PApplet {
 		
 //		grid.display();
 		
-		for(int i = 0; i < dashes.size(); i++){
+//		for(int i = 0; i < dashes.size(); i++){
 //			dashes.get(i).display();
-		}
+//		}
 
 
 //		if(outro){
@@ -269,7 +272,7 @@ public class Vertices extends PApplet {
 			partitions.get(i).display();
 		}
 		
-		if(cube != null)
+		if(cube != null && blocks.size() == 0)
 			cube.display();
 
 		if(world != null){
@@ -286,7 +289,29 @@ public class Vertices extends PApplet {
 		
 		for(int i = 0; i < blocks.size(); i++){
 			Block b = blocks.get(i);
-			b.display();
+			
+			float ts_start_noise = 1f;
+			
+			//after a given moment, if not fading
+			if(millis() > ts_start_noise && !b.fading){
+				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
+				//and the threshold increased as time goes by
+				if(noise(millis()*0.000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
+					//do not display
+					//or do something interesting?
+				}else{
+					b.display();
+				}
+			}else{
+				b.display();
+			}
+			
+			
+			float start_modulo_wave = 10*1000f;
+			float end_modulo_wave = 120*1000f;
+			
+			if(i % (int)(millis()*0.01f) < 3)//gradually accentuating the modulo pattern
+				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 1.0f, 0.1f);
 		}
 		
 //		if(intro){
@@ -464,9 +489,33 @@ public class Vertices extends PApplet {
 	
 	private void removeBlocks() {
 		int u = 0;
-		while(u < 1){
-			if(blocks.size() != 0)
-				blocks.get((int)random(blocks.size())).fading = true;
+		while(u < 4){
+			if(blocks.size() != 0){
+				if(random(1) > 0.8){//pick at random most of the time
+					blocks.get((int)random(blocks.size())).fading = true;
+				}else{
+					int min = (int)random(2, blocks.size());
+//					int max = (int)random(blocks.size()*0.5f, blocks.size()-1);
+					for(int i = min; i < blocks.size()-1; i++){//choose one in continuation
+						if(blocks.get(i).fading){
+							float r = random(1);
+							if(r < 0.25f){
+								blocks.get(i-1).fading = true;
+							}else if(r < 0.5f){
+								blocks.get(i+1).fading = true;
+							}else if(r < 0.75f){
+								blocks.get(min(i+grid.rows, blocks.size()-1)).fading = true;
+							}else{
+								blocks.get(max(i-grid.rows, 0)).fading = true;
+							}
+							
+							break;
+						}
+					}
+				}
+				
+			}
+				
 			u++;
 		}
 	}
