@@ -28,7 +28,7 @@ public class Vertices extends PApplet {
 	float intro_width = width*0.225f;
 
 	static ArrayList<Block> blocks;
-	float blocks_start = 0;
+	float blocks_start = 10*1000f;
 	float blocks_timer = 1;
 	World world;
 	
@@ -105,7 +105,6 @@ public class Vertices extends PApplet {
 				i++;
 			}
 		}
-		println("blocks: "+blocks.size());
 		
 		dash_seed = (int)random(grid.points.length-grid.cols);
 			
@@ -202,6 +201,8 @@ public class Vertices extends PApplet {
 		if(cube != null)
 			cube.update();
 		
+		grid.update();
+		
 		for(int i = 0; i < blocks.size(); i++){
 			if(blocks.get(i).alpha < 0)
 				blocks.remove(i);
@@ -253,7 +254,7 @@ public class Vertices extends PApplet {
 
 		background(bg_h, bg_s, bg_b);
 		
-//		grid.display();
+		
 		
 //		for(int i = 0; i < dashes.size(); i++){
 //			dashes.get(i).display();
@@ -272,6 +273,8 @@ public class Vertices extends PApplet {
 			partitions.get(i).display();
 		}
 		
+		grid.display();
+		
 		if(cube != null && blocks.size() == 0)
 			cube.display();
 
@@ -287,16 +290,22 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
+//		displayBlocks();
+		
+//		debug();
+	}
+	
+	void displayBlocks(){
 		for(int i = 0; i < blocks.size(); i++){
 			Block b = blocks.get(i);
 			
-			float ts_start_noise = 1f;
+			float ts_start_noise = 45*1000f;
 			
 			//after a given moment, if not fading
 			if(millis() > ts_start_noise && !b.fading){
 				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
 				//and the threshold increased as time goes by
-				if(noise(millis()*0.000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
+				if(noise((millis()-ts_start_noise)*0.000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
 					//do not display
 					//or do something interesting?
 				}else{
@@ -311,22 +320,8 @@ public class Vertices extends PApplet {
 			float end_modulo_wave = 120*1000f;
 			
 			if(i % (int)(millis()*0.01f) < 3)//gradually accentuating the modulo pattern
-				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 1.0f, 0.1f);
+				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 0.9f, 0.05f);
 		}
-		
-//		if(intro){
-//			introBackground();
-//			background(0, 0, 100);
-//
-//			for(int i = 0; i < blocks.size(); i++){
-//				blocks.get(i).display();
-//			}
-//		}
-		
-
-
-		
-//		debug();
 	}
 	
 	void addDash(){
@@ -489,7 +484,7 @@ public class Vertices extends PApplet {
 	
 	private void removeBlocks() {
 		int u = 0;
-		while(u < 4){
+		while(u < (int)(map(millis(), 0, ts_end_intro, 1, 5))){
 			if(blocks.size() != 0){
 				if(random(1) > 0.8){//pick at random most of the time
 					blocks.get((int)random(blocks.size())).fading = true;
