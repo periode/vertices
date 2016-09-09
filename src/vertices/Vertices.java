@@ -226,6 +226,9 @@ public class Vertices extends PApplet {
 			}
 		}
 		
+		if(millis() > ts_end_intro)
+			grid.backdrop_expand = true;
+		
 		
 		if(millis() - dash_start > dash_timer){
 			addDash();
@@ -273,9 +276,10 @@ public class Vertices extends PApplet {
 			partitions.get(i).display();
 		}
 		
-		grid.display();
 		
-		if(cube != null && blocks.size() == 0)
+			grid.display();
+		
+		if(cube != null && grid.backdrop_expand)
 			cube.display();
 
 		if(world != null){
@@ -290,7 +294,7 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-//		displayBlocks();
+		displayBlocks();
 		
 //		debug();
 	}
@@ -305,7 +309,7 @@ public class Vertices extends PApplet {
 			if(millis() > ts_start_noise && !b.fading){
 				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
 				//and the threshold increased as time goes by
-				if(noise((millis()-ts_start_noise)*0.000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
+				if(noise((millis()-ts_start_noise)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
 					//do not display
 					//or do something interesting?
 				}else{
@@ -320,7 +324,7 @@ public class Vertices extends PApplet {
 			float end_modulo_wave = 120*1000f;
 			
 			if(i % (int)(millis()*0.01f) < 3)//gradually accentuating the modulo pattern
-				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 0.9f, 0.05f);
+				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 1.0f, 0.05f);
 		}
 	}
 	

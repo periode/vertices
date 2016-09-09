@@ -20,10 +20,20 @@ public class Grid {
 	float backdrop_h = 0;
 	float backdrop_rate = 0.008f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = true;
+	boolean backdrop_expand = false;
 	
-	float threshold_h_r = 0.8f;
-	float threshold_w_r = 0.8f;
+	float threshold_h_r = 0.1f;
+	float threshold_w_r = 0.1f;
+	
+	float lower_limit;
+	float upper_limit;
+	
+	float left_border;
+	float top_border;
+	float right_border;
+	float bottom_border;
+	
+	float border_alpha = 0;
 	
 	
 	Grid(PApplet _p){
@@ -36,7 +46,13 @@ public class Grid {
 		
 		points = new PVector[(1+cols)*(1+rows)];
 		
+		lower_limit = 0.925f;
+		upper_limit = 0.075f;
 		
+		left_border = p.width*lower_limit;
+		top_border = p.height*0.5f;
+		right_border = p.width*upper_limit;
+		bottom_border = p.height*0.5f;
 		
 		int i = 0;
 		for(int x = 0; x <= cols; x++){
@@ -52,10 +68,18 @@ public class Grid {
 		if(backdrop_expand){
 //			backdrop_w = p.lerp(0, p.width*0.75f, p.pow(backdrop_val, 2));
 			backdrop_h = p.lerp(0, p.height*0.85f, p.pow(backdrop_val, 2));
+			top_border = p.height*p.lerp(0.5f, lower_limit, p.pow(backdrop_val, 2));
+			bottom_border = p.height*p.lerp(0.5f, upper_limit, p.pow(backdrop_val, 2));
 			
 			if(backdrop_val < 1)
 				backdrop_val += backdrop_rate;
+			
+			if(border_alpha < 255)
+				border_alpha+=5f;
 		}
+		
+//		threshold_w_r = PApplet.map(p.mouseX, 0, p.width, 0, 1);
+//		threshold_h_r = PApplet.map(p.mouseY, 0, p.height, 0, 1);
 	}
 	
 	void display(){
@@ -65,9 +89,9 @@ public class Grid {
 		p.strokeWeight(2);
 		p.stroke(255, 255);
 		
-//		displayStrokes();
+		displayStrokes();
 		
-		p.fill(55);
+		p.fill(0);;
 		p.noStroke();
 		p.pushMatrix();
 		p.translate(p.width*0.5f, p.height*0.5f, 10);
@@ -75,37 +99,17 @@ public class Grid {
 		p.rect(0, 0, backdrop_w, backdrop_h);
 		p.popMatrix();
 		
-//		if(p.noise(p.millis()*0.1f) > 0.2f){
-//			p.stroke(255);
-//			p.line(p.lerp(p.width*0.15f, p.width*0.5f, p.random(1)), p.height*0.15f, p.lerp(p.width*0.5f, p.width*0.85f, p.random(1)), p.height*0.15f);
-//		}
 		
 		p.stroke(255);
-		for(float i = 0 ; i < 1; i+=0.0075f){
-			float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
-//			float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
-			float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
-			
-			if(upper_lerp_val > lower_lerp_val)
-				p.line(p.lerp(p.width*0.075f, p.width*0.925f, lower_lerp_val), p.height*0.075f+1, 11, p.lerp(p.width*0.075f, p.width*0.925f, upper_lerp_val), p.height*0.075f+1, 11);
-		}
 		
-		for(float i = 1 ; i > 0; i-=0.0075f){
-			float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
-//			float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
-			float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
-			
-			if(p.noise(p.millis()*0.01f, i*1000f) > 0.6f)
-				p.stroke(255);
-			else
-				p.stroke(0);
-			
-			if(upper_lerp_val > lower_lerp_val)
-				p.line(p.lerp(p.width*0.925f, p.width*0.075f, lower_lerp_val), p.height*0.925f+1, 11, p.lerp(p.width*0.925f, p.width*0.075f, upper_lerp_val), p.height*0.925f+1, 11);
-		}
+		if(backdrop_expand)
+			displayFrame();
+		
 	}
 	
+	
 	void displayStrokes(){
+		p.strokeWeight(1);
 		for(int i = 1; i < points.length-1; i++){
 			
 			
@@ -122,5 +126,67 @@ public class Grid {
 				p.line(points[i].x, points[i].y, points[i-rows-1].x, points[i-rows-1].y);
 			}
 		}
+	}
+	
+	void displayFrame(){
+		//top frame
+				for(float i = 0 ; i < 1; i+=0.0075f){
+					float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
+//					float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
+					float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
+					
+					if(p.noise(p.millis()*0.01f, i*1000f) > 0.1f)
+						p.stroke(border_alpha);
+					else
+						p.stroke(0);
+					
+					if(upper_lerp_val > lower_lerp_val)
+						p.line(PApplet.lerp(p.width*lower_limit, p.width*upper_limit, lower_lerp_val), top_border+1, 11, PApplet.lerp(p.width*lower_limit, p.width*upper_limit, upper_lerp_val), top_border+1, 11);
+				}
+				
+				//lower frame
+				for(float i = 1 ; i > 0; i-=0.0075f){
+					float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
+//					float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
+					float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
+					
+					if(p.noise(p.millis()*0.01f, i*1000f) > 0.1f)
+						p.stroke(border_alpha);
+					else
+						p.stroke(0);
+					
+					if(upper_lerp_val > lower_lerp_val)
+						p.line(PApplet.lerp(p.width*upper_limit, p.width*lower_limit, lower_lerp_val), bottom_border+1, 11, PApplet.lerp(p.width*upper_limit, p.width*lower_limit, upper_lerp_val), bottom_border+1, 11);
+				}
+				
+				//left frame
+				for(float i = 1 ; i > 0; i-=0.0075f){
+					float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
+//					float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
+					float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
+					
+					if(p.noise(p.millis()*0.01f, i*1000f) > 0.1f)
+						p.stroke(border_alpha);
+					else
+						p.stroke(0);
+					
+					if(upper_lerp_val > lower_lerp_val)
+						p.line(left_border, PApplet.lerp(bottom_border, top_border, lower_lerp_val), 11, left_border, PApplet.lerp(bottom_border, top_border, upper_lerp_val), 11);
+				}
+				
+				//right frame
+				for(float i = 1 ; i > 0; i-=0.0075f){
+					float lower_lerp_val = ((i+(p.millis()*0.0001f))%1f);
+//					float upper_lerp_val = p.constrain(((i+0.025f+(p.millis()*0.0001f))%1f), lower_lerp_val, p.width*0.925f);
+					float upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
+					
+					if(p.noise(p.millis()*0.01f, i*1000f) > 0.1f)
+						p.stroke(border_alpha);
+					else
+						p.stroke(0);
+					
+					if(upper_lerp_val > lower_lerp_val)
+						p.line(right_border, PApplet.lerp(top_border, bottom_border, lower_lerp_val), 11, right_border, PApplet.lerp(top_border, bottom_border, upper_lerp_val), 11);
+				}
 	}
 }
