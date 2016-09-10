@@ -8,6 +8,7 @@ public class Cube {
 	PApplet p;
 	
 	PVector[] pos;
+	PVector[] pos_abs;
 	PVector[] pulse;
 	
 	PVector rad;
@@ -100,7 +101,7 @@ public class Cube {
 		
 		rad = new PVector(p.width*0.2f, 0, 0);
 		radI = new PVector(0, 0, 0);
-		radO = new PVector (p.width, p.width, p.width);
+		radO = new PVector (0, 0, 0);//fyi this used to be "width, width, width"
 		
 		p.colorMode(PApplet.HSB, 360, 100, 100);
 		red = p.color(0, 80, 50);
@@ -113,10 +114,17 @@ public class Cube {
 		trans = new PVector(0, 0, 100);
 		
 		pulse = new PVector[8];
+		pos = new PVector[8];
+		pos_abs = new PVector[8];
 		
 		for(int i = 0; i < pulse.length; i++){
 			pulse[i] = new PVector(0, 0, 0);
+			pos[i] = new PVector(0, 0, 0);
+			pos_abs[i] = new PVector(0, 0, 0);
 		}
+		
+
+		drawBox(rad);
 	}
 	
 	void update(){
@@ -321,6 +329,10 @@ public class Cube {
 		p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
 		p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
 		p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		
+		for(int i = 0; i < pos.length; i++){
+			pos_abs[i] = new PVector(p.modelX(pos[i].x, pos[i].y, pos[i].z), p.modelY(pos[i].x, pos[i].y, pos[i].z), p.modelZ(pos[i].x, pos[i].y, pos[i].z));
+		}
 	}
 	
 	public void keyPressed() {

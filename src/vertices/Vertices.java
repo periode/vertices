@@ -44,7 +44,7 @@ public class Vertices extends PApplet {
 
 	static ArrayList<Partition> partitions;
 	static ArrayList<Cube> cubes;
-	public Cube cube;
+	static public Cube cube;
 
 	int bg_h;
 	int bg_s;
@@ -81,7 +81,21 @@ public class Vertices extends PApplet {
 	static float c_height;
 	
 	//---- TIME
-	static float ts_end_intro = 111000; //1'51"
+	static float ts_intro_open_filter = 42*1000f; //0'42"
+	static float ts_end_intro = 78*1000f; //1'51"
+	
+	float bpm_start_0 = 0;
+	float bpm_timer_0 = 1000;
+	
+	float bpm_start_1 = 0;
+	float bpm_timer_1 = 500;
+	
+	float bpm_start_2 = 0;
+	float bpm_timer_2 = 250;
+	
+	float bpm_start_4 = 0;
+	float bpm_timer_4 = 125;
+	
 
 	public void setup() {
 		noCursor();
@@ -94,13 +108,18 @@ public class Vertices extends PApplet {
 
 		bpm = 0.037f;
 		
+		bpm_start_0 = millis();
+		bpm_start_1 = millis();
+		bpm_start_2 = millis();
+		bpm_start_4 = millis();
+		
 		grid = new Grid(this);
 
 		intro_pos = new PVector(-intro_width, 0);
 		blocks = new ArrayList<Block>();
 		int i = 0;
-		for(int x = 0; x < grid.cols; x++){
-			for(int y = 0; y < grid.rows; y++){
+		for(float x = 0.5f; x < grid.cols; x++){
+			for(float y = 0.5f; y < grid.rows; y++){
 				blocks.add(new Block(new PVector(x*grid.xstep, y*grid.xstep), grid.xstep, grid.xstep, 0, i, this));
 				i++;
 			}
@@ -193,6 +212,16 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
+		if(beat(1)){
+			rotateCube("Z", 1);
+		}
+		
+		if(beat(0)){
+			rotateCube("Y", 1);
+		}
+		
+		
+		
 		for(int i = 0; i < partitions.size(); i++){
 			if(partitions.get(i) != null)
 				partitions.get(i).update();
@@ -277,7 +306,7 @@ public class Vertices extends PApplet {
 		}
 		
 		
-			grid.display();
+		grid.display();
 		
 		if(cube != null && grid.backdrop_expand)
 			cube.display();
@@ -294,7 +323,7 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-		displayBlocks();
+//		displayBlocks();
 		
 //		debug();
 	}
@@ -303,13 +332,11 @@ public class Vertices extends PApplet {
 		for(int i = 0; i < blocks.size(); i++){
 			Block b = blocks.get(i);
 			
-			float ts_start_noise = 45*1000f;
-			
 			//after a given moment, if not fading
-			if(millis() > ts_start_noise && !b.fading){
+			if(millis() > ts_intro_open_filter && !b.fading){
 				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
 				//and the threshold increased as time goes by
-				if(noise((millis()-ts_start_noise)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_start_noise, ts_end_intro, 0.0f, 0.8f)){
+				if(noise((millis()-ts_intro_open_filter)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_intro_open_filter, ts_end_intro, 0.0f, 0.8f)){
 					//do not display
 					//or do something interesting?
 				}else{
@@ -319,12 +346,46 @@ public class Vertices extends PApplet {
 				b.display();
 			}
 			
-			
-			float start_modulo_wave = 10*1000f;
-			float end_modulo_wave = 120*1000f;
+			float start_modulo_wave = 6*1000f;
+			float end_modulo_wave = 110*1000f;
 			
 			if(i % (int)(millis()*0.01f) < 3)//gradually accentuating the modulo pattern
 				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 1.0f, 0.05f);
+		}
+	}
+	
+	boolean beat(int division){
+		if(division == 0){
+			if(millis() - bpm_start_0 > bpm_timer_0){
+				bpm_start_0 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 1){
+			if(millis() - bpm_start_1 > bpm_timer_1){
+				bpm_start_1 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 2){
+			if(millis() - bpm_start_2 > bpm_timer_2){
+				bpm_start_2 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 4){
+			if(millis() - bpm_start_4 > bpm_timer_4){
+				bpm_start_4 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else{//if wrong input
+			println("invalid sub-division");
+			return false;
 		}
 	}
 	
@@ -398,7 +459,6 @@ public class Vertices extends PApplet {
 	}
 
 	void reset(int orient, int dir){
-
 		for(int i = 0; i < partitions.size(); i++){
 			Partition pa = partitions.get(i);
 			if(pa.type == orient && pa.orientation == dir)
@@ -479,9 +539,17 @@ public class Vertices extends PApplet {
 			
 		
 		if(key == ' '){
-			removeBlocks();
+			
 		}
-//			moveVertex(2);
+//		
+		if(key == '1')
+			cube.cube_scale = 1;
+		
+		if(key == '2')
+				cube.rad.y = cube.rad.x;
+		
+		if(key == '3')
+			cube.rad.z = cube.rad.x;
 
 			
 	}
@@ -514,9 +582,24 @@ public class Vertices extends PApplet {
 				}
 				
 			}
-				
 			u++;
 		}
+	}
+	
+	public void rotateCube(String axis, int dir){
+		if(axis == "X"){
+			cube.targetX += PI/2*dir;
+			cube.valX = 0;
+		}else if(axis == "Y"){
+			cube.targetY += PI/2*dir;
+			cube.valY = 0;
+		}else if(axis == "Z"){
+			cube.targetZ += PI/2*dir;
+			cube.valZ = 0;
+		}else{
+			println("wrong axis, bae.");
+		}
+		
 	}
 
 	public void resetCube(){
@@ -649,16 +732,13 @@ public class Vertices extends PApplet {
 			if(c == 0){
 				switch(p){
 				case 44:
-					cube.targetX += PI/2;
-					cube.valX = 0;
+					rotateCube("X", 1);
 					break;
 				case 45:
-					cube.targetY += PI/2;
-					cube.valY = 0;
+					rotateCube("Y", 1);
 					break;
 				case 46:
-					cube.targetY += PI/2;
-					cube.valY = 0;
+					rotateCube("Z", 1);
 					break;
 				case 47:
 					move("up");

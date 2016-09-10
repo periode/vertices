@@ -18,12 +18,14 @@ public class Grid {
 	
 	float backdrop_w = 0;
 	float backdrop_h = 0;
-	float backdrop_rate = 0.008f;
+	float backdrop_rate = 0.05f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = false;
+	boolean backdrop_expand = true;
 	
 	float threshold_h_r = 0.1f;
 	float threshold_w_r = 0.1f;
+	
+	float z_depth = 11;
 	
 	float lower_limit;
 	float upper_limit;
@@ -67,9 +69,9 @@ public class Grid {
 	void update(){
 		if(backdrop_expand){
 //			backdrop_w = p.lerp(0, p.width*0.75f, p.pow(backdrop_val, 2));
-			backdrop_h = p.lerp(0, p.height*0.85f, p.pow(backdrop_val, 2));
-			top_border = p.height*p.lerp(0.5f, lower_limit, p.pow(backdrop_val, 2));
-			bottom_border = p.height*p.lerp(0.5f, upper_limit, p.pow(backdrop_val, 2));
+			backdrop_h = PApplet.lerp(0, p.height*0.85f, PApplet.pow(backdrop_val, 2));
+			top_border = p.height*PApplet.lerp(0.5f, lower_limit, PApplet.pow(backdrop_val, 2));
+			bottom_border = p.height*PApplet.lerp(0.5f, upper_limit, PApplet.pow(backdrop_val, 2));
 			
 			if(backdrop_val < 1)
 				backdrop_val += backdrop_rate;
@@ -83,19 +85,22 @@ public class Grid {
 	}
 	
 	void display(){
-		p.textAlign(p.CENTER);
-		p.textSize(24);
+//		p.textAlign(PApplet.CENTER);
+//		p.textSize(24);
 		
 		p.strokeWeight(2);
 		p.stroke(255, 255);
 		
 		displayStrokes();
 		
+		
+		displayParticles();
+		
 		p.fill(0);;
 		p.noStroke();
 		p.pushMatrix();
 		p.translate(p.width*0.5f, p.height*0.5f, 10);
-		p.rectMode(p.CENTER);
+		p.rectMode(PApplet.CENTER);
 		p.rect(0, 0, backdrop_w, backdrop_h);
 		p.popMatrix();
 		
@@ -105,6 +110,31 @@ public class Grid {
 		if(backdrop_expand)
 			displayFrame();
 		
+	}
+	
+	void displayParticles(){
+		p.stroke(255);
+		p.strokeWeight(2);
+		PVector v = new PVector(p.width*0.5f, p.height*0.5f);
+		for(int i = 0; i < 1000; i++){
+			int m = i % 4;
+//			p.println(m);
+			
+			if(Vertices.cube != null){
+				v = Vertices.cube.pos_abs[m].copy();
+			}
+				
+			float l_val = PApplet.constrain(((i+p.millis()*0.001f)%1000f)*0.001f, 0f, 0.95f);
+			if(m == 0){//top left
+				p.point(PApplet.lerp(left_border, v.x, l_val), PApplet.lerp(top_border, v.y, l_val)+p.noise(p.millis()*0.025f, i*0.1f)*40*PApplet.sin(p.millis()*0.001f), z_depth);
+			}else if (m == 1){//top right
+				p.point(PApplet.lerp(right_border, v.x, l_val), PApplet.lerp(top_border, v.y, l_val)+p.noise(p.millis()*0.025f, i*0.1f)*40*PApplet.cos(p.millis()*0.001f), z_depth);
+			}else if(m == 2){//bottom left
+				p.point(PApplet.lerp(left_border, v.x, l_val), PApplet.lerp(bottom_border, v.y, l_val)+p.noise(p.millis()*0.025f, i*0.1f)*40*PApplet.cos(p.millis()*0.001f), z_depth);
+			}else{//bottom right
+				p.point(PApplet.lerp(right_border, v.x, l_val), PApplet.lerp(bottom_border, v.y,l_val)+p.noise(p.millis()*0.025f, i*0.1f)*40*PApplet.sin(p.millis()*0.001f), z_depth);
+			}
+		}
 	}
 	
 	
@@ -141,7 +171,7 @@ public class Grid {
 						p.stroke(0);
 					
 					if(upper_lerp_val > lower_lerp_val)
-						p.line(PApplet.lerp(p.width*lower_limit, p.width*upper_limit, lower_lerp_val), top_border+1, 11, PApplet.lerp(p.width*lower_limit, p.width*upper_limit, upper_lerp_val), top_border+1, 11);
+						p.line(PApplet.lerp(p.width*lower_limit, p.width*upper_limit, lower_lerp_val), top_border+1, z_depth, PApplet.lerp(p.width*lower_limit, p.width*upper_limit, upper_lerp_val), top_border+1, z_depth);
 				}
 				
 				//lower frame
@@ -156,7 +186,7 @@ public class Grid {
 						p.stroke(0);
 					
 					if(upper_lerp_val > lower_lerp_val)
-						p.line(PApplet.lerp(p.width*upper_limit, p.width*lower_limit, lower_lerp_val), bottom_border+1, 11, PApplet.lerp(p.width*upper_limit, p.width*lower_limit, upper_lerp_val), bottom_border+1, 11);
+						p.line(PApplet.lerp(p.width*upper_limit, p.width*lower_limit, lower_lerp_val), bottom_border+1, z_depth, PApplet.lerp(p.width*upper_limit, p.width*lower_limit, upper_lerp_val), bottom_border+1, z_depth);
 				}
 				
 				//left frame
@@ -171,7 +201,7 @@ public class Grid {
 						p.stroke(0);
 					
 					if(upper_lerp_val > lower_lerp_val)
-						p.line(left_border, PApplet.lerp(bottom_border, top_border, lower_lerp_val), 11, left_border, PApplet.lerp(bottom_border, top_border, upper_lerp_val), 11);
+						p.line(left_border, PApplet.lerp(bottom_border, top_border, lower_lerp_val), z_depth, left_border, PApplet.lerp(bottom_border, top_border, upper_lerp_val), z_depth);
 				}
 				
 				//right frame
@@ -186,7 +216,7 @@ public class Grid {
 						p.stroke(0);
 					
 					if(upper_lerp_val > lower_lerp_val)
-						p.line(right_border, PApplet.lerp(top_border, bottom_border, lower_lerp_val), 11, right_border, PApplet.lerp(top_border, bottom_border, upper_lerp_val), 11);
+						p.line(right_border, PApplet.lerp(top_border, bottom_border, lower_lerp_val), z_depth, right_border, PApplet.lerp(top_border, bottom_border, upper_lerp_val), z_depth);
 				}
 	}
 }
