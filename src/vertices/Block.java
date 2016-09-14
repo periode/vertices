@@ -42,7 +42,6 @@ public class Block {
 			this.dirW = -1;
 		}
 		
-		p.colorMode(p.HSB, 360, 100, 100);
 		scol = p.color(0, 0, 100*_col);
 		col = p.color(0, 0, p.abs(100-100*_col));
 	}

@@ -79,7 +79,6 @@ public class Partition {
 		var_s = 0;
 		var_b = (int)p.random(-20, 20);
 
-		p.colorMode(PApplet.HSB, 360, 100, 100);
 
 		if(unicolor)
 			col = p.color(0, 0, 100);

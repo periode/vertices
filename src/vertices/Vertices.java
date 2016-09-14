@@ -81,8 +81,54 @@ public class Vertices extends PApplet {
 	static float c_height;
 	
 	//---- TIME
-	static float ts_intro_open_filter = 42*1000f; //0'42"
-	static float ts_end_intro = 78*1000f; //1'51"
+	static float ts_intro_open_filter = 42*1000f; //0'40"
+	static float ts_open_canvas =  77*1000f; // 1'17"
+	static float ts_show_line = 79*1000f; //1'19"
+	static float ts_rotate_1D = 81*1000f;
+	
+	static float ts_show_square = 85*1000f;
+	static float ts_rotate_2D = 86*1000f;
+	static float ts_drums_in_1 = 86*1000f;
+	
+	static float ts_drums_out_1 = 94*1000f;
+	static float ts_rotate_3D = 94*1000f;
+	
+	static float ts_drums_in_2 = 102*1000f;
+	static float ts_drums_out_2 = 110*1000f;
+	
+	static float ts_drums_in_3 = 118*1000f;
+	static float ts_drums_out_3 = 126*1000f;
+	
+	static float ts_arpeggios_in = 126*1000f;
+	static float ts_arpeggios_out = 198*1000f;
+	
+	//break
+	static float ts_break_cut_kick = 134*1000f;
+	static float ts_break_cut_drums = 142*1000f;
+	static float ts_break_full_cut = 158*1000f;
+	static float ts_break_swishes = 166*1000f;
+	
+	static float ts_kick_back = 171*1000f;
+	
+	static float ts_drums_in_4 = 181*1000f;
+	static float ts_drums_out_4 = 188*1000f;
+	
+	static float ts_pads_post_cut = 196*1000f;
+	
+	static float ts_start_fizzle = 212*1000f;
+	static float ts_drums_in_5 = 212*1000f;
+	static float ts_drums_out_5 = 218*1000f;
+	
+	static float ts_start_fizzle_more = 226*1000f;
+	
+	static float ts_drums_in_6 = 236*1000f;
+	static float ts_drums_out_6 = 244*1000f;
+	
+	static float ts_congas_vertices = 244*1000f;
+	
+	static float ts_outro_kick_cut = 260*1000f;
+	static float ts_outro_fade_out = 276*1000f;
+	
 	
 	float bpm_start_0 = 0;
 	float bpm_timer_0 = 1000;
@@ -99,12 +145,12 @@ public class Vertices extends PApplet {
 
 	public void setup() {
 		noCursor();
-		MidiBus.list();
-		midi_beatstep = new MidiBus(this, "Arturia BeatStep", 1);
-		midi_kontrol = new MidiBus(this, "SLIDER/KNOB", 2);
-
-		midi_beatstep.setBusName("beatstep");
-		midi_kontrol.setBusName("kontrol");
+//		MidiBus.list();
+//		midi_beatstep = new MidiBus(this, "Arturia BeatStep", 1);
+//		midi_kontrol = new MidiBus(this, "SLIDER/KNOB", 2);
+//
+//		midi_beatstep.setBusName("beatstep");
+//		midi_kontrol.setBusName("kontrol");
 
 		bpm = 0.037f;
 		
@@ -134,12 +180,9 @@ public class Vertices extends PApplet {
 		cube = new Cube(this);
 		cubes = new ArrayList<Cube>();
 
-		colorMode(HSB, 360, 100, 100);
-		red = color(0, 75, 75);
-		green = color(120, 75, 75);
-		blue = color(240, 75, 75);
-
 		background(0, 0, 100);
+		
+		ellipseMode(CENTER);
 	}
 
 	public void settings(){
@@ -176,22 +219,6 @@ public class Vertices extends PApplet {
 		intro_pos.x += intro_width;
 	}
 
-	void introBackground(){
-		noStroke();
-		int col1 = color(0, 0, 80-cos(millis()*0.001f+PI/3)*20);
-		int col2 = color(0, 0, 80-cos(millis()*0.001f+PI/3*2)*20);
-		int col3 = color(0, 0, 80-cos(millis()*0.001f)*20);
-
-		fill(col1);
-		rect(0, 0, width, height*0.30f);
-
-		fill(col2);
-		rect(0, height*0.30f, width, height*0.40f);
-
-		fill(col3);
-		rect(0, height*0.70f, width, height*0.30f);
-	}
-
 	public void debug(){
 		textAlign(LEFT);
 		textSize(10);
@@ -212,13 +239,8 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
-		if(beat(1)){
-			rotateCube("Z", 1);
-		}
-		
-		if(beat(0)){
-			rotateCube("Y", 1);
-		}
+		timer_events();
+		behavior();
 		
 		
 		
@@ -254,9 +276,7 @@ public class Vertices extends PApplet {
 				dashes.remove(i);
 			}
 		}
-		
-		if(millis() > ts_end_intro)
-			grid.backdrop_expand = true;
+
 		
 		
 		if(millis() - dash_start > dash_timer){
@@ -305,7 +325,6 @@ public class Vertices extends PApplet {
 			partitions.get(i).display();
 		}
 		
-		
 		grid.display();
 		
 		if(cube != null && grid.backdrop_expand)
@@ -323,7 +342,7 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-//		displayBlocks();
+		displayBlocks();
 		
 //		debug();
 	}
@@ -336,7 +355,7 @@ public class Vertices extends PApplet {
 			if(millis() > ts_intro_open_filter && !b.fading){
 				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
 				//and the threshold increased as time goes by
-				if(noise((millis()-ts_intro_open_filter)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_intro_open_filter, ts_end_intro, 0.0f, 0.8f)){
+				if(noise((millis()-ts_intro_open_filter)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_intro_open_filter, ts_open_canvas, 0.0f, 0.8f)){
 					//do not display
 					//or do something interesting?
 				}else{
@@ -351,6 +370,161 @@ public class Vertices extends PApplet {
 			
 			if(i % (int)(millis()*0.01f) < 3)//gradually accentuating the modulo pattern
 				b.alpha *= map(constrain(millis(), start_modulo_wave, end_modulo_wave), start_modulo_wave, end_modulo_wave, 1.0f, 0.05f);
+		}
+	}
+	
+	void timer_events(){
+		
+		if(millis() > ts_open_canvas)
+			grid.backdrop_expand = true;
+		
+		
+		//show cube
+		if(millis() > ts_show_line && cube.canExpand.x != 1){
+			cube.canRotateStep = true;
+			cube.canShowEdges = true;
+			cube.canExpand.x = 1;
+		}
+		
+		if(millis() > ts_rotate_2D)
+			cube.canExpand.y = 1;
+		
+		if(millis() > ts_rotate_3D)
+			cube.canExpand.z = 1;
+		
+		//drums
+		if(millis() > ts_drums_in_1 && millis() < ts_drums_out_1
+				|| millis() > ts_drums_in_2 && millis() < ts_drums_out_2
+				|| millis() > ts_drums_in_3 && millis() < ts_drums_out_3
+				|| millis() > ts_drums_in_4 && millis() < ts_drums_out_4
+				|| millis() > ts_drums_in_5 && millis() < ts_drums_out_5
+				|| millis() > ts_drums_in_6 && millis() < ts_drums_out_6){
+			Cube.isDrumming = true;
+		}else{
+			Cube.isDrumming = false;
+		}
+		
+		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
+			grid.canDisplayParticles = true;
+			grid.canModuloParticles = true;
+		}
+		
+		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
+//			cube.canRotateStep = false;
+			cube.canShowCircles = true;
+			cube.canShowEdges = false;
+		}
+		
+		if(millis() > ts_break_cut_drums){
+			cube.canRotateStep = false;
+			cube.constant_rotateX = true;
+		}
+		
+		if(millis() > ts_break_full_cut){
+			cube.constant_rotateY = true;
+			cube.constant_rotateZ = true;
+		}
+		
+		if(millis() > ts_break_swishes && cube.canShowCircles){
+			cube.canFizzleSphere = true;
+		}
+		
+		if(millis() > ts_kick_back){
+			
+			cube.canShowCircles = false;
+			cube.canShowEdges = true;
+			cube.canShowDiagonals = true;
+		}
+		
+		if(millis() > ts_pads_post_cut){
+			cube.canRotateStep = true;
+			cube.distortVertices = 1;
+		}
+		
+		if(millis() > ts_start_fizzle){
+			cube.canFizzleCube = true;
+		}
+		
+		if(millis() > ts_start_fizzle_more){
+			cube.canFizzleMoreCube = true;
+		}
+		
+		if(millis() > ts_congas_vertices){
+			cube.distortVertices = 2;
+		}
+		
+		if(millis() > ts_outro_kick_cut){
+			cube.canRotateStep = false;
+			cube.canShowCircles = false;
+			cube.canShowDiagonals = false;
+			cube.canShowEdges = false;
+		}
+		
+		if(millis() > ts_outro_fade_out){
+			grid.backdrop_expand_outro = true;
+		}
+		
+	}
+	
+	void behavior(){
+		if(beat(1) && cube.canRotateStep){
+			if(millis () > ts_rotate_3D){
+				float r = random(1);
+				if(r < 0.33f){
+					cube.rotateCube("X", 1);
+				}else if(r < 0.66f){
+					cube.rotateCube("Y", 1);
+				}else{
+					cube.rotateCube("Z", 1);
+				}
+			}else if(millis () > ts_rotate_2D){
+				if(random(1) < 0.5f){
+					cube.rotateCube("Z", 1);
+				}else{
+					cube.rotateCube("Y", 1);
+				}
+			}else if(millis () >  ts_rotate_1D){
+				cube.rotateCube("Y", 1);
+			}
+			
+		}
+		
+		//drumming
+		if(Cube.isDrumming){
+			if(beat(1)){
+				cube.radO.set(width*0.45f, width*0.45f);
+			}
+			if(beat(2)){
+				cube.innerTheta = random(0, TWO_PI);
+				
+				cube.radI.set(0, 0, 0);
+			}
+		}
+		
+		
+		//constant rotation
+		if(cube.constant_rotateX){
+			if(cube.thetaX_coeff < cube.max_theta)
+				cube.thetaX_coeff += cube.theta_inc;
+		}
+		
+		if(cube.constant_rotateY){
+			if(cube.thetaY_coeff < cube.max_theta)
+				cube.thetaY_coeff += cube.theta_inc;
+		}
+		
+		if(cube.constant_rotateZ){
+			if(cube.thetaZ_coeff < cube.max_theta)
+				cube.thetaZ_coeff += cube.theta_inc;
+		}
+		
+		if(cube.distortVertices != 0){
+			if(beat(cube.distortVertices)){
+				moveVertex(0);
+			}
+			
+			if(beat(0))
+				cube.resetCube();
 		}
 	}
 	
@@ -487,76 +661,76 @@ public class Vertices extends PApplet {
 	}
 
 	public void keyPressed(){
-		
+			
 		if(key == 'e')
 			entracte = !entracte;
 		
-		if(key == 'i'){
-			intro = false;
-//			blocks.clear();
-		}
-		
-		if(key == 'p')
-			intro_pixels = !intro_pixels;
+//		if(key == 'i'){
+//			intro = false;
+//		}
+//		
+//		if(key == 'o'){
+//			outro = true;
+//			intro_pos = new PVector(0, 0);
+//		}
+//		
+//		if(key == 'p')
+//			intro_pixels = !intro_pixels;
 
 		if(key =='w'){
 			world = new World(this);
 		}
 
-		if(key == 'o'){
-			outro = true;
-			intro_pos = new PVector(0, 0);
-		}
-
-		if(key == 'r'){
-			fill(red);
-			noStroke();
-			rect(0, 0, width, height*0.30f);
-		}
-
-		if(key == 'g'){
-			fill(green);
-			noStroke();
-			rect(0, height*0.30f, width, height*0.40f);
-		}
-
-		if(key == 'b'){
-			fill(blue);
-			noStroke();
-			rect(0, height*0.70f, width, height*0.30f);
-		}
-
-		if(key == 's')
-			world.det--;
+		if(key == 'p')
+			moveVertex(0);
 		
-		if(key == 'x')
-			world.det++;
+		if(key == 'l')
+			moveVertex(1);
 		
-		if(key == 'c'){
-			cube = new Cube(this);
-			cubes = new ArrayList<Cube>();
-		}
+		if(key == 'r')
+			resetCube();
+		
+		//in/out radius
+		if(key == 'i')
+			cube.radI.set(0, 0, 0);
+		
+		if(key == 'o')
+			cube.radO.set(width*0.5f, width*0.5f);
 			
 		
-		if(key == ' '){
-			
+		//rotate cube
+		if(key == 'x'){
+			rotateCube("X", 1);
 		}
-//		
+		
+		if(key == 'y'){
+			rotateCube("Y", 1);
+		}
+		
+		if(key == 'z'){
+			rotateCube("Z", 1);
+		}
+		
+		
+		//unfold cube
 		if(key == '1')
-			cube.cube_scale = 1;
+			cube.canExpand.x = 1;
 		
 		if(key == '2')
-				cube.rad.y = cube.rad.x;
+			cube.canExpand.y = 1;
 		
 		if(key == '3')
-			cube.rad.z = cube.rad.x;
+			cube.canExpand.z = 1;
+	
+		if(key == ' ')
+			cube.canScale = true;
 
 			
 	}
 	
 	private void removeBlocks() {
 		int u = 0;
-		while(u < (int)(map(millis(), 0, ts_end_intro, 1, 5))){
+		while(u < (int)(map(millis(), 0, ts_open_canvas, 1, 5))){
 			if(blocks.size() != 0){
 				if(random(1) > 0.8){//pick at random most of the time
 					blocks.get((int)random(blocks.size())).fading = true;
@@ -599,29 +773,34 @@ public class Vertices extends PApplet {
 		}else{
 			println("wrong axis, bae.");
 		}
-		
 	}
 
 	public void resetCube(){
-		cube.pulse = new PVector[8];
+//		cube.pulse = new PVector[8];
 		
-		for(int i = 0; i < cube.pulse.length; i++){
-			cube.pulse[i] = new PVector(0, 0, 0);
+		for(int i = 0; i < cube.pulse_target.length; i++){
+			cube.pulse_target[i] = new PVector(0, 0, 0);
+			cube.canPulse[i] = true;
+			cube.pulse_val[i] = 0;
 		}
 	}
 	
 	public void moveVertex(int t){
 		if(t == 0){
-			cube.pulse[(int)random(cube.pulse.length)] = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
+			int index = (int)random(cube.pulse.length);
+			PVector v = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
+			cube.pulse_target[index] = v;
+			cube.canPulse[index] = true;
+			cube.pulse_val[index] = 0;
 		}else if(t == 1){
 			for(int i = 0; i < cube.pulse.length; i++){
-				cube.pulse[i] = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
+				cube.pulse[i].add(new PVector(random(-100, 100), random(-100, 100), random(-100, 100)));
+				cube.canPulse[i] = true;
+				cube.pulse_val[i] = 0;
 			}
 		}else{
-			println("reset");
-			for(int i = 0; i < cube.pulse.length; i++){
-				cube.pulse[i] = new PVector(0, 0, 0);
-			}
+			println("reset all");
+			resetCube();
 		}
 	}
 
