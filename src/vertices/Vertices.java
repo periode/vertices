@@ -85,7 +85,8 @@ public class Vertices extends PApplet {
 	static float ts_drums_in_1 = 86*1000f;
 	
 	static float ts_drums_out_1 = 94*1000f;
-	static float ts_rotate_3D = 94*1000f;
+//	static float ts_rotate_3D = 94*1000f;
+	static float ts_rotate_3D = 0f;
 	
 	static float ts_drums_in_2 = 102*1000f;
 	static float ts_drums_out_2 = 110*1000f;
@@ -174,7 +175,6 @@ public class Vertices extends PApplet {
 		cube = new Cube(this);
 		cubes = new ArrayList<Cube>();
 
-		background(0, 0, 100);
 		
 		ellipseMode(CENTER);
 		
@@ -234,7 +234,7 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
-		timer_events();
+//		timer_events();
 		behavior();
 		
 		
@@ -295,25 +295,20 @@ public class Vertices extends PApplet {
 		}
 	}
 
+	public void drawBackground(){
+//		pushMatrix();
+//		fill(0);
+//		rectMode(CENTER);
+//		rect(width*0.5f, height*0.5f, -1000, width*2, height*2);
+//		popMatrix();
+		background(0);
+	}
+	
 	public void draw() {
 		noCursor();
 		update();
 
-		background(0);
-		
-		
-		
-//		for(int i = 0; i < dashes.size(); i++){
-//			dashes.get(i).display();
-//		}
-
-
-//		if(outro){
-//			for(int i = 0; i < blocks.size(); i++){
-//				blocks.get(i).display();
-//			}
-//		}
-		
+		drawBackground();
 
 
 		for(int i = 0; i < partitions.size(); i++){
@@ -324,11 +319,6 @@ public class Vertices extends PApplet {
 		
 		if(cube != null && grid.backdrop_expand)
 			cube.display();
-
-//		if(world != null){
-//			background(0, 0, 100);
-//			world.display();
-//		}
 
 		
 		if(entracte){
@@ -411,7 +401,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_break_cut_drums){
-			cube.canRotateStep = false;
+			cube.canRotateStep = false; 
 			cube.constant_rotateX = true;
 		}
 		

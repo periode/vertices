@@ -41,21 +41,21 @@ public class World {
 	
 	void display(){
 		
-		p.noFill();
-		p.strokeWeight(sw);
-		p.stroke(0, alpha);
-		p.pushMatrix();
-		p.translate(pos.x, pos.y, pos.z);
-		p.rotateX(theta.x);
-		p.rotateY(theta.y);
-		p.rotateZ(theta.z);
-		p.sphere(finalrad);
-		p.popMatrix();
-		
-		p.rectMode(PApplet.CORNER);
-		p.fill(0);
-		p.rect(0, 0, p.width, closing);
-		p.rect(0, p.height, p.width, -closing);
+//		p.noFill();
+//		p.strokeWeight(sw);
+//		p.stroke(0, alpha);
+//		p.pushMatrix();
+//		p.translate(pos.x, pos.y, pos.z);
+//		p.rotateX(theta.x);
+//		p.rotateY(theta.y);
+//		p.rotateZ(theta.z);
+//		p.sphere(finalrad);
+//		p.popMatrix();
+//		
+//		p.rectMode(PApplet.CORNER);
+//		p.fill(0);
+//		p.rect(0, 0, p.width, closing);
+//		p.rect(0, p.height, p.width, -closing);
 	}
 	
 	public void keyPressed(){

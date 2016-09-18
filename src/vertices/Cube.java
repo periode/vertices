@@ -58,7 +58,7 @@ public class Cube {
 	float radIncI = 10;
 	float innerTheta = 0;
 	
-	boolean canRotateStep = false;
+	boolean canRotateStep = true;
 
 	float radIncO = 20;
 
@@ -80,8 +80,8 @@ public class Cube {
 	float move_val = 0;
 	float move_inc = 0.1f;
 	
-	static boolean show = false;
-	PVector canExpand = new PVector(0, 0, 0);
+	static boolean show = true;
+	PVector canExpand = new PVector(1, 1, 1);
 	boolean canScale;
 	float expand_rate = 3f;
 	
@@ -105,10 +105,10 @@ public class Cube {
 	
 	boolean canShowCircles = false;
 	boolean canShowDiagonals = false;
-	boolean canShowEdges = false;
+	boolean canShowEdges = true;
 	
 	boolean canFizzleSphere = false;
-	boolean canFizzleCube = false;
+	boolean canFizzleCube = true;
 	boolean canFizzleMoreCube = false;
 	
 	float fizzleRate = 0f;
@@ -138,7 +138,7 @@ public class Cube {
 		valZ = 0;
 		incZ = 0.01f;
 		
-		maxRad = p.width*0.2f;
+		maxRad = p.width*0.15f;
 		rad = new PVector(0, 0, 0);
 		radI = new PVector(0, 0, 0);
 		radO = new PVector (0, 0, 0);//fyi this used to be "width, width, width"
@@ -146,7 +146,7 @@ public class Cube {
 		current = new PVector(0, 0, 0);
 		start = new PVector(0, 0, 0);
 		end = new PVector(0, 0, 0);
-		trans = new PVector(0, 0, 100);
+		trans = new PVector(0, 0, 200);
 		
 		pulse = new PVector[8];
 		pulse_origin = new PVector[8];
@@ -364,6 +364,7 @@ public class Cube {
 	
 	void display(){
 		p.noFill();
+		p.fill(0);
 		p.pushMatrix();
 		p.translate(trans.x, trans.y, trans.z);
 		p.rotateX(thetaX+p.millis()*thetaX_coeff);
@@ -381,7 +382,7 @@ public class Cube {
 //		p.strokeWeight(sw);
 		p.strokeWeight(1);
 		
-		p.stroke(255, 0, 0, cube_alpha);//RED
+		p.stroke(100, 100, 255, cube_alpha);//RED
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -408,7 +409,7 @@ public class Cube {
 		p.popMatrix();
 		
 		
-		p.stroke(0, 255, 0, cube_alpha); //GREEN
+		p.stroke(255, cube_alpha); //GREEN
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -435,7 +436,7 @@ public class Cube {
 		p.popMatrix();
 		
 		
-		p.stroke(0, 0, 255, cube_alpha);//BLUE
+		p.stroke(255, cube_alpha);//BLUE
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -460,9 +461,11 @@ public class Cube {
 		drawBox(radO, 0);
 		p.popMatrix();
 		
-		p.stroke(255, 255, 255, cube_alpha*0.5f); //WHITE - ALPHA
-		
+		p.stroke(255, cube_alpha*0.5f); //WHITE - ALPHA
+		p.strokeWeight(2);
 		drawBox(rad, 1);
+		
+		p.strokeWeight(1);
 		drawBox(radI, 0);
 		drawBox(radO, 0);
 		

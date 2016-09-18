@@ -20,7 +20,7 @@ public class Grid {
 	float backdrop_h = 0;
 	float backdrop_rate = 0.025f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = false;
+	boolean backdrop_expand = true;
 	
 	boolean backdrop_expand_outro = false;
 	float backdrop_rate_outro = 0.0025f;
@@ -44,6 +44,9 @@ public class Grid {
 	
 	float particle_scale = 40;
 	
+	float[] tunnel_depth;
+	float[] tunnel_accel;
+	
 	boolean canDisplayParticles = false;
 	boolean canModuloParticles = false;
 	
@@ -58,8 +61,8 @@ public class Grid {
 		
 		points = new PVector[(1+cols)*(1+rows)];
 		
-		lower_limit = 0.925f;
-		upper_limit = 0.075f;
+		lower_limit = 1f;
+		upper_limit = 0.00f;
 		
 		left_border = p.width*lower_limit;
 		top_border = p.height*0.5f;
@@ -74,13 +77,23 @@ public class Grid {
 			}
 		}
 		backdrop_w=p.width*0.85f;
+		
+		tunnel_depth = new float[12];
+		tunnel_accel = new float[12];
+		for(int j = 0;j<tunnel_depth.length;j++){
+			tunnel_accel[j] = j*0.01f;
+			tunnel_depth[j] = 0;
+		}
 	}
 	
 	void update(){
 		if(backdrop_expand){
 			if(backdrop_expand_outro)
 				backdrop_w = PApplet.lerp(0, p.width*0.75f, p.pow(backdrop_val, 2));
-			backdrop_h = PApplet.lerp(0, p.height*0.85f, PApplet.pow(backdrop_val, 2));
+			
+			backdrop_h = PApplet.lerp(0, p.height*0.95f, PApplet.pow(backdrop_val, 2));
+			backdrop_w = PApplet.lerp(0, p.width*0.95f, PApplet.pow(backdrop_val, 2));
+			
 			top_border = p.height*PApplet.lerp(0.5f, lower_limit, PApplet.pow(backdrop_val, 2));
 			bottom_border = p.height*PApplet.lerp(0.5f, upper_limit, PApplet.pow(backdrop_val, 2));
 			
@@ -111,10 +124,10 @@ public class Grid {
 		
 
 		
-		p.fill(0);;
+		p.fill(0);
 		p.noStroke();
 		p.pushMatrix();
-		p.translate(p.width*0.5f, p.height*0.5f, 10);
+		p.translate(p.width*0.5f, p.height*0.5f, 5);
 		p.rectMode(PApplet.CENTER);
 		p.rect(0, 0, backdrop_w, backdrop_h);
 		p.popMatrix();
@@ -134,6 +147,28 @@ public class Grid {
 		if(backdrop_expand)
 			displayFrame();
 		
+//		p.noFill();
+		for(int i = 0; i < tunnel_depth.length; i++){
+			p.strokeWeight(1);
+			p.pushMatrix();
+			p.translate(p.width*0.5f, p.height*0.5f, 10);
+			p.rectMode(PApplet.CENTER);
+			p.stroke(p.map(tunnel_depth[i], 0, 1, 0, 255));
+			p.rect(0, 0, PApplet.map(tunnel_depth[i], 0, 1, 0, p.width), PApplet.map(tunnel_depth[i], 0, 1, 0, p.height));
+			p.popMatrix();
+
+			if(tunnel_depth[i] < 1){
+				tunnel_depth[i] += tunnel_accel[i];
+				tunnel_accel[i] += 0.001f;
+			}else{
+				tunnel_depth[i] = 0;
+				tunnel_accel[i] = 0;
+			}
+
+			p.stroke(255);
+			p.strokeWeight(1);
+			p.line(0, p.height, 0, 0, p.height, 1000);
+		}
 	}
 	
 	void displayParticles(){
