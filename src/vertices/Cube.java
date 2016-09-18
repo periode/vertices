@@ -460,13 +460,13 @@ public class Cube {
 		drawBox(radO, 0);
 		p.popMatrix();
 		
-		p.stroke(0, 0, 255, cube_alpha*0.5f); //WHITE - ALPHA
+		p.stroke(255, 255, 255, cube_alpha*0.5f); //WHITE - ALPHA
 		
 		drawBox(rad, 1);
 		drawBox(radI, 0);
 		drawBox(radO, 0);
 		
-		p.stroke(0, 0, 255, 255); //WHITE - FULL
+		p.stroke(255); //WHITE - FULL
 		
 		if(canShowCircles)
 			drawCircles(rad);

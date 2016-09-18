@@ -24,7 +24,6 @@ public class Partition {
 	float scaling;
 	float sw;
 
-	int col;
 	int var_h;
 	int var_s;
 	int var_b;
@@ -35,8 +34,6 @@ public class Partition {
 	boolean canRemove = false;
 
 	float beat;
-
-	int[] rgb;
 	
 	float unifier = 1;
 
@@ -70,20 +67,11 @@ public class Partition {
 			initializeDiagonal();
 		}
 
-		rgb = new int[3];
-		rgb[0] = Vertices.red;
-		rgb[1] = Vertices.green;
-		rgb[2] = Vertices.blue;
+
 
 		var_h = 0;
 		var_s = 0;
 		var_b = (int)p.random(-20, 20);
-
-
-		if(unicolor)
-			col = p.color(0, 0, 100);
-		else
-			col = rgb[(int)p.random(3)];
 
 		scaling = 0;
 
@@ -220,7 +208,7 @@ public class Partition {
 	}
 
 	void display(){
-		p.stroke(col, Vertices.p_alpha);
+		p.stroke(255, Vertices.p_alpha);
 		p.strokeWeight(sw);
 		p.pushMatrix();
 		for(int i = 0; i < num_lines; i++){

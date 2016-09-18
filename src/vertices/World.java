@@ -43,7 +43,7 @@ public class World {
 		
 		p.noFill();
 		p.strokeWeight(sw);
-		p.stroke(0, 0, 0, alpha);
+		p.stroke(0, alpha);
 		p.pushMatrix();
 		p.translate(pos.x, pos.y, pos.z);
 		p.rotateX(theta.x);

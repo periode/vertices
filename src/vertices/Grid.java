@@ -121,7 +121,7 @@ public class Grid {
 		
 		
 		p.strokeWeight(2);
-		p.stroke(255, 255);
+		p.stroke(255);
 		
 		displayStrokes();
 		
@@ -210,7 +210,7 @@ public class Grid {
 			upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
 			
 			if(p.noise(p.millis()*0.01f, i*1000f) > PApplet.min(threshold_h_r, 0.6f))
-				p.stroke(border_alpha);
+				p.stroke(255, border_alpha);
 			else
 				p.stroke(0);
 			
@@ -226,7 +226,7 @@ public class Grid {
 			upper_lerp_val = ((i+0.005f+(p.millis()*0.0001f))%1f);
 			
 			if(p.noise(p.millis()*0.01f, i*1000f) > PApplet.min(threshold_w_r, 0.6f))
-				p.stroke(border_alpha);
+				p.stroke(255, border_alpha);
 			else
 				p.stroke(0);
 			

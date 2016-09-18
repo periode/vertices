@@ -46,13 +46,7 @@ public class Vertices extends PApplet {
 	static ArrayList<Cube> cubes;
 	static public Cube cube;
 
-	int bg_h;
-	int bg_s;
-	int bg_b;
 
-	static int red;
-	static int green;
-	static int blue;
 
 	static int p_h = 50;
 	static int p_s = 10;
@@ -183,6 +177,7 @@ public class Vertices extends PApplet {
 		background(0, 0, 100);
 		
 		ellipseMode(CENTER);
+		
 	}
 
 	public void settings(){
@@ -304,7 +299,7 @@ public class Vertices extends PApplet {
 		noCursor();
 		update();
 
-		background(bg_h, bg_s, bg_b);
+		background(0);
 		
 		
 		
@@ -330,10 +325,10 @@ public class Vertices extends PApplet {
 		if(cube != null && grid.backdrop_expand)
 			cube.display();
 
-		if(world != null){
-			background(0, 0, 100);
-			world.display();
-		}
+//		if(world != null){
+//			background(0, 0, 100);
+//			world.display();
+//		}
 
 		
 		if(entracte){
@@ -1035,13 +1030,13 @@ public class Vertices extends PApplet {
 					p_alpha = map(v, 0, 127, 0, 255);
 					break;
 				case 8://--------------------------------KNOBS
-					bg_h = (int) map(v, 0, 127, 0, 360);
+//					bg_h = (int) map(v, 0, 127, 0, 360);
 					break;
 				case 9:
-					bg_s = (int) map(v, 0, 127, 0, 100);
+//					bg_s = (int) map(v, 0, 127, 0, 100);
 					break;
 				case 10:
-					bg_b = (int) map(v, 0, 127, 0, 100);
+//					bg_b = (int) map(v, 0, 127, 0, 100);
 					break;
 				case 11:
 					p_sw_coeff = map(v, 0, 127, 0, 20);
@@ -1088,13 +1083,13 @@ public class Vertices extends PApplet {
 					world.closing = map(v, 0, 127, 0, height*0.5f);
 					break;
 				case 8://--------------------------------KNOBS
-					bg_h = (int) map(v, 0, 127, 0, 360);
+//					bg_h = (int) map(v, 0, 127, 0, 360);
 					break;
 				case 9:
-					bg_s = (int) map(v, 0, 127, 0, 100);
+//					bg_s = (int) map(v, 0, 127, 0, 100);
 					break;
 				case 10:
-					bg_b = (int) map(v, 0, 127, 0, 100);
+//					bg_b = (int) map(v, 0, 127, 0, 100);
 					break;
 				case 11:
 					p_sw_coeff = map(v, 0, 127, 0, 20);
