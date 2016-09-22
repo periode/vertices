@@ -381,7 +381,7 @@ public class Cube {
 	void drawCube() {
 //		p.strokeWeight(sw);
 		p.strokeWeight(1);
-		
+//		p.fill(0);
 		p.stroke(100, 100, 255, cube_alpha);//RED
 		
 		p.pushMatrix();
@@ -492,8 +492,11 @@ public class Cube {
 			for(int i = 0; i < pos.length-1; i++){
 				p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);
 			}
+			
+			
 		}
 
+		drawFaces(pos);
 		
 		p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
 		p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
@@ -501,7 +504,7 @@ public class Cube {
 		p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
 		p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
 		
-//		p.textSize(64);
+//		p.textSize(24);
 //		p.fill(255);
 //		for(int i = 0; i < pos.length; i++){
 //			p.text(""+i, pos[i].x, pos[i].y, pos[i].z);
@@ -516,6 +519,52 @@ public class Cube {
 			}
 		}
 			
+	}
+	
+	void drawFaces(PVector[] pos){
+		p.fill(0);
+		p.beginShape();
+		p.vertex(pos[0].x, pos[0].y, pos[0].z);
+		p.vertex(pos[3].x, pos[3].y, pos[3].z);
+		p.vertex(pos[4].x, pos[4].y, pos[4].z);
+		p.vertex(pos[7].x, pos[7].y, pos[7].z);
+		p.endShape(PApplet.CLOSE);
+		
+		p.beginShape();
+		p.vertex(pos[0].x, pos[0].y, pos[0].z);
+		p.vertex(pos[1].x, pos[1].y, pos[1].z);
+		p.vertex(pos[6].x, pos[6].y, pos[6].z);
+		p.vertex(pos[7].x, pos[7].y, pos[7].z);
+		p.endShape(PApplet.CLOSE);
+		
+		p.beginShape();
+		p.vertex(pos[2].x, pos[2].y, pos[2].z);
+		p.vertex(pos[3].x, pos[3].y, pos[3].z);
+		p.vertex(pos[4].x, pos[4].y, pos[4].z);
+		p.vertex(pos[5].x, pos[5].y, pos[5].z);
+		p.endShape(PApplet.CLOSE);
+		
+		p.beginShape();
+		p.vertex(pos[6].x, pos[6].y, pos[6].z);
+		p.vertex(pos[5].x, pos[5].y, pos[5].z);
+		p.vertex(pos[2].x, pos[2].y, pos[2].z);
+		p.vertex(pos[1].x, pos[1].y, pos[1].z);
+		p.endShape(PApplet.CLOSE);
+		
+		p.beginShape();
+		p.vertex(pos[6].x, pos[6].y, pos[6].z);
+		p.vertex(pos[5].x, pos[5].y, pos[5].z);
+		p.vertex(pos[4].x, pos[4].y, pos[4].z);
+		p.vertex(pos[7].x, pos[7].y, pos[7].z);
+		p.endShape(PApplet.CLOSE);
+		
+
+		p.beginShape();
+		p.vertex(pos[0].x, pos[0].y, pos[0].z);
+		p.vertex(pos[1].x, pos[1].y, pos[1].z);
+		p.vertex(pos[2].x, pos[2].y, pos[2].z);
+		p.vertex(pos[3].x, pos[3].y, pos[3].z);
+		p.endShape(PApplet.CLOSE);
 	}
 	
 	void drawCircles(PVector r){
