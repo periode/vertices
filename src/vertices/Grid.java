@@ -51,11 +51,11 @@ public class Grid {
 	boolean canModuloParticles = false;
 	
 	float modulo_step = 0;
-	int tunnel_step = 0;
-	float tunnel_lerp_val = 0;
-	PVector tunnel_pos;
-	PVector tunnel_start;
-	PVector tunnel_target;
+	int[] tunnel_step;
+	float[] tunnel_lerp_val;
+	PVector[] tunnel_pos;
+	PVector[] tunnel_start;
+	PVector[] tunnel_target;
 	
 	
 	Grid(PApplet _p){
@@ -87,14 +87,24 @@ public class Grid {
 		
 		tunnel_depth = new float[12];
 		tunnel_accel = new float[12];
+		
+		tunnel_pos = new PVector[12];
+		tunnel_start = new PVector[12];
+		tunnel_target = new PVector[12];
+		tunnel_lerp_val = new float[12];
+		tunnel_step = new int[12];
+		
 		for(int j = 0;j<tunnel_depth.length;j++){
 			tunnel_accel[j] = 0.0075f;
 			tunnel_depth[j] = PApplet.map(j, 0, tunnel_depth.length, 0, 1);
+			tunnel_pos[j] = new PVector(0, 0);
+			tunnel_start[j] = new PVector(0, 0);
+			tunnel_target[j] = new PVector(0, 0);
+			tunnel_lerp_val[j] = 0;
+			tunnel_step[j] = (int)p.random(4);
 		}
 		
-		tunnel_pos = new PVector(0, 0);
-		tunnel_start = new PVector(0, 0);
-		tunnel_target = new PVector(0, 0);
+
 	}
 	
 	void update(){
@@ -200,43 +210,82 @@ public class Grid {
 			
 			
 			
-			if(tunnel_step == 0){
-				tunnel_start = new PVector(-w*0.5f, -h*0.5f);
-				tunnel_target = new PVector(w*0.5f, -h*0.5f);
-			}else if(tunnel_step == 1){
-				tunnel_start = new PVector(w*0.5f, -h*0.5f);
-				tunnel_target = new PVector(w*0.5f, h*0.5f);
-			}else if(tunnel_step == 2){
-				tunnel_start = new PVector(w*0.5f, h*0.5f);
-				tunnel_target = new PVector(-w*0.5f, h*0.5f);
-			}else if(tunnel_step == 3){
-				tunnel_start = new PVector(-w*0.5f, h*0.5f);
-				tunnel_target = new PVector(-w*0.5f, -h*0.5f);
+//			if(tunnel_step == 0){
+//				tunnel_start = new PVector(-w*0.5f, -h*0.5f);
+//				tunnel_target = new PVector(w*0.5f, -h*0.5f);
+//			}else if(tunnel_step == 1){
+//				tunnel_start = new PVector(w*0.5f, -h*0.5f);
+//				tunnel_target = new PVector(w*0.5f, h*0.5f);
+//			}else if(tunnel_step == 2){
+//				tunnel_start = new PVector(w*0.5f, h*0.5f);
+//				tunnel_target = new PVector(-w*0.5f, h*0.5f);
+//			}else if(tunnel_step == 3){
+//				tunnel_start = new PVector(-w*0.5f, h*0.5f);
+//				tunnel_target = new PVector(-w*0.5f, -h*0.5f);
+//			}
+//			
+//			
+//			
+//			if(tunnel_lerp_val < 1){
+//				tunnel_lerp_val += 0.0075f;
+//				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val);
+//				
+//				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
+//					p.line(tunnel_start.x, tunnel_start.y, tunnel_pos.x, tunnel_pos.y);
+//			}else if(tunnel_lerp_val < 2){
+//				tunnel_lerp_val += 0.0075f;
+//				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val-1);
+//				
+//				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
+//					p.line(tunnel_target.x, tunnel_target.y, tunnel_pos.x, tunnel_pos.y);
+//			}else{
+//				tunnel_step++;
+//				
+//				if(tunnel_step == 4)
+//					tunnel_step = 0;
+//				
+//
+//				
+//				tunnel_lerp_val = 0;
+//			}
+			
+			if(tunnel_step[i] == 0){
+				tunnel_start[i] = new PVector(-w*0.5f, -h*0.5f);
+				tunnel_target[i] = new PVector(w*0.5f, -h*0.5f);
+			}else if(tunnel_step[i] == 1){
+				tunnel_start[i] = new PVector(w*0.5f, -h*0.5f);
+				tunnel_target[i] = new PVector(w*0.5f, h*0.5f);
+			}else if(tunnel_step[i] == 2){
+				tunnel_start[i] = new PVector(w*0.5f, h*0.5f);
+				tunnel_target[i] = new PVector(-w*0.5f, h*0.5f);
+			}else if(tunnel_step[i] == 3){
+				tunnel_start[i] = new PVector(-w*0.5f, h*0.5f);
+				tunnel_target[i] = new PVector(-w*0.5f, -h*0.5f);
 			}
 			
 			
 			
-			if(tunnel_lerp_val < 1){
-				tunnel_lerp_val += 0.0075f;
-				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val);
+			if(tunnel_lerp_val[i] < 1){
+				tunnel_lerp_val[i] += 0.075f;
+				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]);
 				
-				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
-					p.line(tunnel_start.x, tunnel_start.y, tunnel_pos.x, tunnel_pos.y);
-			}else if(tunnel_lerp_val < 2){
-				tunnel_lerp_val += 0.0075f;
-				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val-1);
+				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
+					p.line(tunnel_start[i].x, tunnel_start[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
+			}else if(tunnel_lerp_val[i] < 2){
+				tunnel_lerp_val[i] += 0.075f;
+				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]-1);
 				
-				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
-					p.line(tunnel_target.x, tunnel_target.y, tunnel_pos.x, tunnel_pos.y);
+				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
+					p.line(tunnel_target[i].x, tunnel_target[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
 			}else{
-				tunnel_step++;
-				
-				if(tunnel_step == 4)
-					tunnel_step = 0;
-				
+//				tunnel_step++;
+//				
+//				if(tunnel_step == 4)
+//					tunnel_step = 0;
+				tunnel_step[i] = (int)p.random(4);
 
 				
-				tunnel_lerp_val = 0;
+				tunnel_lerp_val[i] = 0;
 			}
 			
 			p.popMatrix();
