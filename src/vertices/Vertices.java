@@ -216,8 +216,8 @@ public class Vertices extends PApplet {
 
 	public void debug(){
 		textAlign(LEFT);
-		textSize(10);
-		fill(100, 255, 100);
+		textSize(14);
+		fill(0, 255, 0);
 		text("framerate: "+frameRate, 10, 10);
 		text("ch: "+channel, 10, 20);
 		text("pitch: "+pitch, 10, 30);
@@ -327,8 +327,7 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-		displayBlocks();
-		
+//		displayBlocks();
 //		debug();
 	}
 	

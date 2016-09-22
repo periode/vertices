@@ -53,6 +53,8 @@ public class Grid {
 	float modulo_step = 0;
 	int[] tunnel_step;
 	float[] tunnel_lerp_val;
+	float[] tunnel_lerp_inc;
+	int[] tunnel_dir;
 	PVector[] tunnel_pos;
 	PVector[] tunnel_start;
 	PVector[] tunnel_target;
@@ -92,7 +94,9 @@ public class Grid {
 		tunnel_start = new PVector[12];
 		tunnel_target = new PVector[12];
 		tunnel_lerp_val = new float[12];
+		tunnel_lerp_inc = new float[12];
 		tunnel_step = new int[12];
+		tunnel_dir = new int[12];
 		
 		for(int j = 0;j<tunnel_depth.length;j++){
 			tunnel_accel[j] = 0.0075f;
@@ -102,6 +106,8 @@ public class Grid {
 			tunnel_target[j] = new PVector(0, 0);
 			tunnel_lerp_val[j] = 0;
 			tunnel_step[j] = (int)p.random(4);
+			tunnel_lerp_inc[j] = 0.075f;
+			tunnel_dir[j] = 0;
 		}
 		
 
@@ -178,6 +184,15 @@ public class Grid {
 
 			float w = PApplet.map(tunnel_depth[i], 0, 1, 0, p.width);
 			float h = PApplet.map(tunnel_depth[i], 0, 1, 0, p.height);
+			float w2 = 0;
+			float h2 = 0;
+			if(i < tunnel_depth.length-1){
+				w2 = PApplet.map(tunnel_depth[i+1], 0, 1, 0, p.width);
+				h2 = PApplet.map(tunnel_depth[i+1], 0, 1, 0, p.height);
+			}else{
+				w2 = PApplet.map(tunnel_depth[0], 0, 1, 0, p.width);
+				h2 = PApplet.map(tunnel_depth[0], 0, 1, 0, p.height);
+			}
 //			float r = p.noise(p.millis()*0.01f+i*0.5f)
 //			float r = PApplet.map(PApplet.cos(p.millis()*0.0005f+PApplet.map(i, 0, tunnel_depth.length, 0, PApplet.PI/tunnel_depth.length)), -1f, 1f, 0f, 1f);
 //			float r = PApplet.map(i, 0, tunnel_depth.length, 0, 1f);
@@ -187,106 +202,58 @@ public class Grid {
 			p.strokeWeight(1);
 			p.rect(0, 0, w, h);
 			
+
+			
+			
 			p.strokeWeight(3);
-			p.stroke((int)(c*2.5f));
-//			if(r < 0.25f){
-//				p.line(-w*0.5f, -h*0.5f, -w*0.5f, h*0.5f);
-//			}else if(r < 0.5f){
-//				p.line(-w*0.5f, h*0.5f, w*0.5f, h*0.5f);
-//			}else if(r < 0.75f){
-//				p.line(w*0.5f, h*0.5f, w*0.5f, -h*0.5f);
-//			}else if(r < 1f){
-//				p.line(-w*0.5f, -h*0.5f, w*0.5f, -h*0.5f);
-//			}
-//			if(r == 0){
-//				p.line(-w*0.5f, -h*0.5f, -w*0.5f, h*0.5f);
-//			}else if(r == 1){
-//				p.line(-w*0.5f, h*0.5f, w*0.5f, h*0.5f);
-//			}else if(r == 2){``
-//				p.line(w*0.5f, h*0.5f, w*0.5f, -h*0.5f);
-//			}else if(r == 3){
-//				p.line(-w*0.5f, -h*0.5f, w*0.5f, -h*0.5f);
-//			}
+			p.stroke((int)(c*2f));
 			
-			
-			
-//			if(tunnel_step == 0){
-//				tunnel_start = new PVector(-w*0.5f, -h*0.5f);
-//				tunnel_target = new PVector(w*0.5f, -h*0.5f);
-//			}else if(tunnel_step == 1){
-//				tunnel_start = new PVector(w*0.5f, -h*0.5f);
-//				tunnel_target = new PVector(w*0.5f, h*0.5f);
-//			}else if(tunnel_step == 2){
-//				tunnel_start = new PVector(w*0.5f, h*0.5f);
-//				tunnel_target = new PVector(-w*0.5f, h*0.5f);
-//			}else if(tunnel_step == 3){
-//				tunnel_start = new PVector(-w*0.5f, h*0.5f);
-//				tunnel_target = new PVector(-w*0.5f, -h*0.5f);
-//			}
-//			
-//			
-//			
-//			if(tunnel_lerp_val < 1){
-//				tunnel_lerp_val += 0.0075f;
-//				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val);
-//				
-//				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
-//					p.line(tunnel_start.x, tunnel_start.y, tunnel_pos.x, tunnel_pos.y);
-//			}else if(tunnel_lerp_val < 2){
-//				tunnel_lerp_val += 0.0075f;
-//				tunnel_pos = PVector.lerp(tunnel_start, tunnel_target, tunnel_lerp_val-1);
-//				
-//				if(p.noise(tunnel_step, i+p.millis()*0.001f) > 0.5f)
-//					p.line(tunnel_target.x, tunnel_target.y, tunnel_pos.x, tunnel_pos.y);
-//			}else{
-//				tunnel_step++;
-//				
-//				if(tunnel_step == 4)
-//					tunnel_step = 0;
-//				
-//
-//				
-//				tunnel_lerp_val = 0;
-//			}
+			if(w2 > w && p.noise(p.millis()*0.001f, i*0.75f) > 0.5f){
+				p.line(-w*0.5f, h*0.5f, -w2*0.5f, h2*0.5f);
+				p.line(-w*0.5f, -h*0.5f, -w2*0.5f, -h2*0.5f);
+				p.line(w*0.5f, -h*0.5f, w2*0.5f, -h2*0.5f);
+				p.line(w*0.5f, h*0.5f, w2*0.5f, h2*0.5f);
+			}
+
 			
 			if(tunnel_step[i] == 0){
-				tunnel_start[i] = new PVector(-w*0.5f, -h*0.5f);
-				tunnel_target[i] = new PVector(w*0.5f, -h*0.5f);
+				tunnel_start[i] = new PVector(-w*0.5f*tunnel_dir[i], -h*0.5f);
+				tunnel_target[i] = new PVector(w*0.5f*tunnel_dir[i], -h*0.5f);
 			}else if(tunnel_step[i] == 1){
-				tunnel_start[i] = new PVector(w*0.5f, -h*0.5f);
-				tunnel_target[i] = new PVector(w*0.5f, h*0.5f);
+				tunnel_start[i] = new PVector(w*0.5f, -h*0.5f*tunnel_dir[i]);
+				tunnel_target[i] = new PVector(w*0.5f, h*0.5f*tunnel_dir[i]);
 			}else if(tunnel_step[i] == 2){
-				tunnel_start[i] = new PVector(w*0.5f, h*0.5f);
-				tunnel_target[i] = new PVector(-w*0.5f, h*0.5f);
+				tunnel_start[i] = new PVector(w*0.5f*tunnel_dir[i], h*0.5f);
+				tunnel_target[i] = new PVector(-w*0.5f*tunnel_dir[i], h*0.5f);
 			}else if(tunnel_step[i] == 3){
-				tunnel_start[i] = new PVector(-w*0.5f, h*0.5f);
-				tunnel_target[i] = new PVector(-w*0.5f, -h*0.5f);
+				tunnel_start[i] = new PVector(-w*0.5f, h*0.5f*tunnel_dir[i]);
+				tunnel_target[i] = new PVector(-w*0.5f, -h*0.5f*tunnel_dir[i]);
 			}
 			
 			
 			
 			if(tunnel_lerp_val[i] < 1){
-				tunnel_lerp_val[i] += 0.075f;
+				tunnel_lerp_val[i] += tunnel_lerp_inc[i];
 				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]);
 				
 				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
 					p.line(tunnel_start[i].x, tunnel_start[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
 			}else if(tunnel_lerp_val[i] < 2){
-				tunnel_lerp_val[i] += 0.075f;
+				tunnel_lerp_val[i] += tunnel_lerp_inc[i];
 				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]-1);
 				
 				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
 					p.line(tunnel_target[i].x, tunnel_target[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
 			}else{
-//				tunnel_step++;
-//				
-//				if(tunnel_step == 4)
-//					tunnel_step = 0;
 				tunnel_step[i] = (int)p.random(4);
+				tunnel_lerp_inc[i] = p.random(0.05f, 0.1f);
+				tunnel_dir[i] = (int)p.random(-2, 2);
 
 				
 				tunnel_lerp_val[i] = 0;
 			}
+			
+			
 			
 			p.popMatrix();
 
@@ -297,10 +264,6 @@ public class Grid {
 				tunnel_depth[i] = 0;
 //				tunnel_accel[i] = 0;
 			}
-
-			p.stroke(255);
-			p.strokeWeight(1);
-			p.line(0, p.height, 0, 0, p.height, 1000);
 		}
 	}
 	

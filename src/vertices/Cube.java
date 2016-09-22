@@ -496,7 +496,7 @@ public class Cube {
 			
 		}
 
-		drawFaces(pos);
+//		drawFaces(pos);
 		
 		p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
 		p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
