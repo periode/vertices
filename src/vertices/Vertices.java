@@ -77,54 +77,55 @@ public class Vertices extends PApplet {
 	static float c_height;
 	
 	//---- TIME
-	static float ts_intro_open_filter = 42*1000f; //0'40"
-	static float ts_open_canvas =  77*1000f; // 1'17"
-	static float ts_show_line = 79*1000f; //1'19"
-	static float ts_rotate_1D = 81*1000f;
+	static float ts_intro_open_filter = 44*1000f; //0'40"
+	static float ts_open_canvas =  68*1000f; // 1'17"
+	static float ts_show_line = 69*1000f; //1'19"
+	static float ts_rotate_1D = 69*1000f;
 	
-	static float ts_show_square = 85*1000f;
-	static float ts_rotate_2D = 86*1000f;
-	static float ts_drums_in_1 = 86*1000f;
+	static float ts_show_square = 75*1000f;
+	static float ts_rotate_2D = 76*1000f;
+	static float ts_drums_in_1 = 76*1000f;
 	
-	static float ts_drums_out_1 = 94*1000f;
-//	static float ts_rotate_3D = 94*1000f;
-	static float ts_rotate_3D = 0f;
+	static float ts_drums_out_1 = 84*1000f;
+	static float ts_rotate_3D = 84*1000f;
 	
-	static float ts_drums_in_2 = 102*1000f;
-	static float ts_drums_out_2 = 110*1000f;
+	static float ts_drums_in_2 = 92*1000f;
+	static float ts_drums_out_2 = 100*1000f;
 	
-	static float ts_drums_in_3 = 118*1000f;
-	static float ts_drums_out_3 = 126*1000f;
+	static float ts_drums_in_3 = 108*1000f;
+	static float ts_drums_out_3 = 116*1000f;
 	
-	static float ts_arpeggios_in = 126*1000f;
+	static float ts_arpeggios_in = 116*1000f;
 	static float ts_arpeggios_out = 198*1000f;
 	
 	//break
-	static float ts_break_cut_kick = 134*1000f;
-	static float ts_break_cut_drums = 142*1000f;
-	static float ts_break_full_cut = 158*1000f;
-	static float ts_break_swishes = 166*1000f;
+	static float ts_break_cut_kick = 124*1000f;
+	static float ts_break_cut_drums = 132*1000f;
+	static float ts_break_full_cut = 148*1000f;
+	static float ts_break_swishes = 154*1000f;
 	
-	static float ts_kick_back = 171*1000f;
+	//back
+	static float ts_kick_back = 162*1000f;
 	
-	static float ts_drums_in_4 = 181*1000f;
-	static float ts_drums_out_4 = 188*1000f;
+	static float ts_drums_in_4 = 170*1000f;
+	static float ts_drums_out_4 = 178*1000f;
 	
 	static float ts_pads_post_cut = 196*1000f;
 	
-	static float ts_start_fizzle = 212*1000f;
-	static float ts_drums_in_5 = 212*1000f;
-	static float ts_drums_out_5 = 218*1000f;
+	static float ts_drums_in_5 = 186*1000f;
+	static float ts_drums_out_5 = 190*1000f;
+	static float ts_start_fizzle = 194*1000f;
+
 	
-	static float ts_start_fizzle_more = 226*1000f;
+	static float ts_start_fizzle_more = 162*1000f;
 	
-	static float ts_drums_in_6 = 236*1000f;
-	static float ts_drums_out_6 = 244*1000f;
+	static float ts_drums_in_6 = 196*1000f;
+	static float ts_drums_out_6 = 202*1000f;
 	
-	static float ts_congas_vertices = 244*1000f;
+	static float ts_congas_vertices = 186*1000f;
 	
-	static float ts_outro_kick_cut = 260*1000f;
-	static float ts_outro_fade_out = 276*1000f;
+	static float ts_outro_kick_cut = 218*1000f;
+	static float ts_outro_fade_out = 234*1000f;
 	
 	
 	float bpm_start_0 = 0;
@@ -376,16 +377,20 @@ public class Vertices extends PApplet {
 			cube.canRotateStep = true;
 			cube.canShowEdges = true;
 			canDisplayBlocks = false;
+			grid.canDisplayTunnel = true;
+			grid.canShowTunnelPerspective = true;
 			cube.canExpand.x = 1;
 		}
 		
-		if(millis() > ts_rotate_2D)
+		if(millis() > ts_rotate_2D){
+
 			cube.canExpand.y = 1;
+		}
+			
 		
 		if(millis() > ts_rotate_3D){
 			cube.canExpand.z = 1;
-			grid.canDisplayTunnel = true;
-			grid.canShowTunnelPerspective = true;
+
 		}
 		
 		//drums
@@ -401,7 +406,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
-
+			cube.canFizzleCube = true;
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
@@ -433,20 +438,20 @@ public class Vertices extends PApplet {
 			grid.canDisplayTunnelSides = true;
 			cube.canShowCircles = false;
 			cube.canShowEdges = true;
-//			cube.canShowDiagonals = true;
+			cube.canRotateStep = true;
+			cube.canShowDiagonals = true;
 		}
 		
 		if(millis() > ts_pads_post_cut){
-			cube.canRotateStep = true;
 			cube.distortVertices = 1;
 		}
 		
 		if(millis() > ts_start_fizzle){
-			cube.canFizzleCube = true;
+			cube.canFizzleMoreCube = true;
 		}
 		
 		if(millis() > ts_start_fizzle_more){
-			cube.canFizzleMoreCube = true;
+			
 		}
 		
 		if(millis() > ts_congas_vertices){
@@ -457,7 +462,11 @@ public class Vertices extends PApplet {
 			cube.canRotateStep = false;
 			cube.canShowCircles = false;
 			cube.canShowDiagonals = false;
-			cube.canShowEdges = false;
+			cube.canShowEdges = true;
+			cube.constant_rotateX = false;
+			cube.constant_rotateY = false;
+			cube.constant_rotateZ = false;
+			cube.distortVertices = 0;
 		}
 		
 		if(millis() > ts_outro_fade_out){
@@ -492,7 +501,7 @@ public class Vertices extends PApplet {
 		
 		//drumming
 		if(Cube.isDrumming){
-			if(beat(0)){
+			if(beat(0) && millis() > ts_drums_in_2){
 				cube.changeOuterCube();
 				
 				if(cube.radO.x == cube.rad.x || cube.radO.x == 0){

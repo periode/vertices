@@ -54,6 +54,7 @@ public class Grid {
 	boolean canModuloParticles = false;
 	boolean canDisplayTunnel = false;
 	boolean canDisplayTunnelSides = false;
+	boolean canShowTunnelPerspective = false;
 	
 	float tunnel_alpha_coeff = 0;
 	float tunnel_edges_alpha_coeff = 0;
@@ -70,7 +71,7 @@ public class Grid {
 	PVector[] tunnel_target;
 	
 	float[] tunnel_perspective_lerp_val;
-	boolean canShowTunnelPerspective = false;
+
 	
 	Grid(PApplet _p){
 		p = _p;
@@ -177,7 +178,7 @@ public class Grid {
 		
 		if(canShowTunnelPerspective){
 			if(tunnel_perspective_alpha_coeff < 1){
-				tunnel_perspective_alpha_coeff += tunnel_alpha_inc;	
+				tunnel_perspective_alpha_coeff += tunnel_alpha_inc*0.5f;	
 			}
 		}else{
 			if(tunnel_perspective_alpha_coeff > 0){
@@ -187,7 +188,7 @@ public class Grid {
 		
 		if(canDisplayParticles){
 			if(particles_alpha < 1)
-				particles_alpha += 0.1f;
+				particles_alpha += 0.001f;
 		}else{
 			if(particles_alpha > 0)
 				particles_alpha -= 0.1f;
@@ -270,6 +271,7 @@ public class Grid {
 				p.line(w*0.5f, -h*0.5f, PApplet.lerp(w*0.5f, w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(-h*0.5f, -h2*0.5f, tunnel_perspective_lerp_val[i]));
 				p.line(w*0.5f, h*0.5f, PApplet.lerp(w*0.5f, w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(h*0.5f, h2*0.5f, tunnel_perspective_lerp_val[i]));
 			}
+
 			
 			if(tunnel_perspective_lerp_val[i] < 1 && canShowTunnelPerspective)
 				tunnel_perspective_lerp_val[i] += 0.01f;
@@ -346,7 +348,7 @@ public class Grid {
 			}
 			
 			
-			float l_val = PApplet.constrain(((i+p.millis()*0.001f)%1000f)*0.001f, 0f, 0.95f);
+			float l_val = PApplet.constrain(((i+p.millis()*0.001f)%1000f)*0.001f, 0f, 0.85f);
 			switch (m) {
 			case 0://bottom right
 				p.point(PApplet.lerp(left_border, v.x, l_val), PApplet.min(PApplet.lerp(top_border, v.y, l_val)+p.noise(p.millis()*0.025f, i*0.1f)*particle_scale*PApplet.sin(p.millis()*0.001f)*PApplet.map(i, 0, 1000, 0f, 2f)*PApplet.map(i, 1000, 0, 0f, 2f), top_border), z_depth);
