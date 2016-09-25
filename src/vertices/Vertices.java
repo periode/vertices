@@ -37,6 +37,8 @@ public class Vertices extends PApplet {
 	float dash_timer = 1;
 	int dash_seed;
 	
+	boolean canDisplayBlocks = true;
+	
 	Grid grid;
 
 	static float bpm;
@@ -46,7 +48,7 @@ public class Vertices extends PApplet {
 	static ArrayList<Cube> cubes;
 	static public Cube cube;
 
-
+	float[] angles;
 
 	static int p_h = 50;
 	static int p_s = 10;
@@ -178,6 +180,11 @@ public class Vertices extends PApplet {
 		
 		ellipseMode(CENTER);
 		
+		angles = new float[4];
+		for(int j = 0; j < angles.length; j++){
+			angles[j] = TWO_PI/j;
+		}
+		
 	}
 
 	public void settings(){
@@ -234,7 +241,7 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
-//		timer_events();
+		timer_events();
 		behavior();
 		
 		
@@ -327,7 +334,8 @@ public class Vertices extends PApplet {
 			rect(0, 0, width*2, height*2);
 		}
 		
-//		displayBlocks();
+		if(canDisplayBlocks)
+			displayBlocks();
 //		debug();
 	}
 	
@@ -367,14 +375,18 @@ public class Vertices extends PApplet {
 		if(millis() > ts_show_line && cube.canExpand.x != 1){
 			cube.canRotateStep = true;
 			cube.canShowEdges = true;
+			canDisplayBlocks = false;
 			cube.canExpand.x = 1;
 		}
 		
 		if(millis() > ts_rotate_2D)
 			cube.canExpand.y = 1;
 		
-		if(millis() > ts_rotate_3D)
+		if(millis() > ts_rotate_3D){
 			cube.canExpand.z = 1;
+			grid.canDisplayTunnel = true;
+			grid.canShowTunnelPerspective = true;
+		}
 		
 		//drums
 		if(millis() > ts_drums_in_1 && millis() < ts_drums_out_1
@@ -389,14 +401,16 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
-			grid.canDisplayParticles = true;
-			grid.canModuloParticles = true;
+
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
 //			cube.canRotateStep = false;
+			grid.canShowTunnelPerspective = false;
 			cube.canShowCircles = true;
 			cube.canShowEdges = false;
+			grid.canDisplayParticles = true;
+//			grid.canModuloParticles = true;
 		}
 		
 		if(millis() > ts_break_cut_drums){
@@ -414,10 +428,12 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_kick_back){
-			
+			grid.canDisplayParticles = false;
+			grid.canShowTunnelPerspective = true;
+			grid.canDisplayTunnelSides = true;
 			cube.canShowCircles = false;
 			cube.canShowEdges = true;
-			cube.canShowDiagonals = true;
+//			cube.canShowDiagonals = true;
 		}
 		
 		if(millis() > ts_pads_post_cut){
@@ -445,6 +461,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_outro_fade_out){
+			grid.canShowTunnelPerspective = false;
 			grid.backdrop_expand_outro = true;
 		}
 		
@@ -483,13 +500,25 @@ public class Vertices extends PApplet {
 				}
 			}
 			if(beat(2)){
-				
 				cube.changeInnerCube();
 				
+//				cube.innerTheta = random(0, TWO_PI);
+				
+				cube.radii.add(new PVector(0, 0, 0));
+				boolean[] b = new boolean[8];
+				
+				for(int i = 0; i < b.length; i++){
+					if(random(1) < 0.30f)
+						b[i] = true;
+					else
+						b[i] = false;
+				}
+				
+				cube.canShowInnerRadii.add(b);
 				if(cube.radI.x == cube.rad.x || cube.radI.x == 0){
 //					cube.innerTheta = random(0, TWO_PI);
 					
-					cube.radI.set(0, 0, 0);
+//					cube.radI.set(0, 0, 0);
 				}
 
 			}
@@ -498,18 +527,18 @@ public class Vertices extends PApplet {
 		
 		//constant rotation
 		if(cube.constant_rotateX){
-			if(cube.thetaX_coeff < cube.max_theta)
-				cube.thetaX_coeff += cube.theta_inc;
+			if(cube.theta_coeff.x < cube.max_theta)
+				cube.theta_coeff.x += cube.theta_inc;
 		}
 		
 		if(cube.constant_rotateY){
-			if(cube.thetaY_coeff < cube.max_theta)
-				cube.thetaY_coeff += cube.theta_inc;
+			if(cube.theta_coeff.y < cube.max_theta)
+				cube.theta_coeff.y += cube.theta_inc;
 		}
 		
 		if(cube.constant_rotateZ){
-			if(cube.thetaZ_coeff < cube.max_theta)
-				cube.thetaZ_coeff += cube.theta_inc;
+			if(cube.theta_coeff.z < cube.max_theta)
+				cube.theta_coeff.z += cube.theta_inc;
 		}
 		
 		if(cube.distortVertices != 0){
@@ -520,6 +549,14 @@ public class Vertices extends PApplet {
 			if(beat(0))
 				cube.resetCube();
 		}
+	}
+	
+	float pickRandomAngle(){
+		float theta = 0;
+		
+		theta = angles[(int)random(angles.length)];
+		
+		return theta;
 	}
 	
 	boolean beat(int division){

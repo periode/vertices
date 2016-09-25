@@ -1,5 +1,7 @@
 package vertices;
 
+import java.util.ArrayList;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -18,9 +20,9 @@ public class Grid {
 	
 	float backdrop_w = 0;
 	float backdrop_h = 0;
-	float backdrop_rate = 0.025f;
+	float backdrop_rate = 0.04f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = true;
+	boolean backdrop_expand = false;
 	
 	boolean backdrop_expand_outro = false;
 	float backdrop_rate_outro = 0.0025f;
@@ -43,13 +45,15 @@ public class Grid {
 	float lfo_rate = 0.00001f;
 	
 	float particle_scale = 40;
+	float particles_alpha = 0;
 	
 	float[] tunnel_depth;
 	float[] tunnel_accel;
 	
 	boolean canDisplayParticles = false;
 	boolean canModuloParticles = false;
-	boolean canDisplayTunnel = true;
+	boolean canDisplayTunnel = false;
+	boolean canDisplayTunnelSides = false;
 	
 	float tunnel_alpha_coeff = 0;
 	float tunnel_edges_alpha_coeff = 0;
@@ -65,6 +69,8 @@ public class Grid {
 	PVector[] tunnel_start;
 	PVector[] tunnel_target;
 	
+	float[] tunnel_perspective_lerp_val;
+	boolean canShowTunnelPerspective = false;
 	
 	Grid(PApplet _p){
 		p = _p;
@@ -104,6 +110,8 @@ public class Grid {
 		tunnel_step = new int[12];
 		tunnel_dir = new int[12];
 		
+		tunnel_perspective_lerp_val = new float[12];
+		
 		for(int j = 0;j<tunnel_depth.length;j++){
 			tunnel_accel[j] = 0.0075f;
 			tunnel_depth[j] = PApplet.map(j, 0, tunnel_depth.length, 0, 1);
@@ -114,6 +122,8 @@ public class Grid {
 			tunnel_step[j] = (int)p.random(4);
 			tunnel_lerp_inc[j] = 0.075f;
 			tunnel_dir[j] = 0;
+			
+			tunnel_perspective_lerp_val[j] = 0;
 		}
 		
 
@@ -122,10 +132,10 @@ public class Grid {
 	void update(){
 		if(backdrop_expand){
 			if(backdrop_expand_outro)
-				backdrop_w = PApplet.lerp(0, p.width*0.75f, p.pow(backdrop_val, 2));
+				backdrop_w = PApplet.lerp(0, p.width*1.85f, p.pow(backdrop_val, 2));
 			
-			backdrop_h = PApplet.lerp(0, p.height*0.95f, PApplet.pow(backdrop_val, 2));
-			backdrop_w = PApplet.lerp(0, p.width*0.95f, PApplet.pow(backdrop_val, 2));
+			backdrop_h = PApplet.lerp(0, p.height*1f, PApplet.pow(backdrop_val, 2));
+			backdrop_w = PApplet.lerp(0, p.width*1f, PApplet.pow(backdrop_val, 2));
 			
 			top_border = p.height*PApplet.lerp(0.5f, lower_limit, PApplet.pow(backdrop_val, 2));
 			bottom_border = p.height*PApplet.lerp(0.5f, upper_limit, PApplet.pow(backdrop_val, 2));
@@ -148,15 +158,39 @@ public class Grid {
 		if(canDisplayTunnel){
 			if(tunnel_alpha_coeff < 1){
 				tunnel_alpha_coeff += tunnel_alpha_inc;
-				tunnel_edges_alpha_coeff += tunnel_alpha_inc;
-				tunnel_perspective_alpha_coeff += tunnel_alpha_inc;	
 			}
 		}else{
 			if(tunnel_alpha_coeff > 0){
 				tunnel_alpha_coeff -= tunnel_alpha_inc;
+			}
+		}
+		
+		if(canDisplayTunnelSides){
+			if(tunnel_edges_alpha_coeff < 1){
+				tunnel_edges_alpha_coeff += tunnel_alpha_inc;
+			}
+		}else{
+			if(tunnel_edges_alpha_coeff > 0){
 				tunnel_edges_alpha_coeff -= tunnel_alpha_inc;
+			}
+		}
+		
+		if(canShowTunnelPerspective){
+			if(tunnel_perspective_alpha_coeff < 1){
+				tunnel_perspective_alpha_coeff += tunnel_alpha_inc;	
+			}
+		}else{
+			if(tunnel_perspective_alpha_coeff > 0){
 				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc;	
 			}
+		}
+		
+		if(canDisplayParticles){
+			if(particles_alpha < 1)
+				particles_alpha += 0.1f;
+		}else{
+			if(particles_alpha > 0)
+				particles_alpha -= 0.1f;
 		}
 		
 		threshold_h_r = PApplet.map(PApplet.cos(p.millis()*lfo_rate), -1f, 1f, 0.1f, 0.85f);
@@ -210,6 +244,7 @@ public class Grid {
 			float h = PApplet.map(tunnel_depth[i], 0, 1, 0, p.height);
 			float w2 = 0;
 			float h2 = 0;
+			
 			if(i < tunnel_depth.length-1){
 				w2 = PApplet.map(tunnel_depth[i+1], 0, 1, 0, p.width);
 				h2 = PApplet.map(tunnel_depth[i+1], 0, 1, 0, p.height);
@@ -217,27 +252,32 @@ public class Grid {
 				w2 = PApplet.map(tunnel_depth[0], 0, 1, 0, p.width);
 				h2 = PApplet.map(tunnel_depth[0], 0, 1, 0, p.height);
 			}
-//			float r = p.noise(p.millis()*0.01f+i*0.5f)
-//			float r = PApplet.map(PApplet.cos(p.millis()*0.0005f+PApplet.map(i, 0, tunnel_depth.length, 0, PApplet.PI/tunnel_depth.length)), -1f, 1f, 0f, 1f);
-//			float r = PApplet.map(i, 0, tunnel_depth.length, 0, 1f);
+			
 			float c = PApplet.map(tunnel_depth[i], 0, 1, 0, 105)*tunnel_alpha_coeff;
 			
 			p.stroke(c);
 			p.strokeWeight(1);
 //			p.rect(0, 0, w, h);
-			
 
-			
 			
 			p.strokeWeight(3);
 			p.stroke((int)(c*2f)*tunnel_perspective_alpha_coeff);
 			
-			if(w2 > w && p.noise(p.millis()*0.001f, i*0.75f) > 0.5f){
-				p.line(-w*0.5f, h*0.5f, -w2*0.5f, h2*0.5f);
-				p.line(-w*0.5f, -h*0.5f, -w2*0.5f, -h2*0.5f);
-				p.line(w*0.5f, -h*0.5f, w2*0.5f, -h2*0.5f);
-				p.line(w*0.5f, h*0.5f, w2*0.5f, h2*0.5f);
+//			 && p.noise(p.millis()*0.001f, i*0.75f) > 0.5f
+			if(w2 > w){
+				p.line(-w*0.5f, h*0.5f, PApplet.lerp(-w*0.5f, -w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(h*0.5f, h2*0.5f, tunnel_perspective_lerp_val[i]));
+				p.line(-w*0.5f, -h*0.5f, PApplet.lerp(-w*0.5f, -w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(-h*0.5f, -h2*0.5f, tunnel_perspective_lerp_val[i]));
+				p.line(w*0.5f, -h*0.5f, PApplet.lerp(w*0.5f, w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(-h*0.5f, -h2*0.5f, tunnel_perspective_lerp_val[i]));
+				p.line(w*0.5f, h*0.5f, PApplet.lerp(w*0.5f, w2*0.5f, tunnel_perspective_lerp_val[i]), PApplet.lerp(h*0.5f, h2*0.5f, tunnel_perspective_lerp_val[i]));
 			}
+			
+			if(tunnel_perspective_lerp_val[i] < 1 && canShowTunnelPerspective)
+				tunnel_perspective_lerp_val[i] += 0.01f;
+			else{
+				if(p.random(1) < 0.01f)
+					tunnel_perspective_lerp_val[i] = 0;
+			}
+
 
 			
 			if(tunnel_step[i] == 0){
@@ -257,43 +297,41 @@ public class Grid {
 			
 			p.stroke((int)(c*2f)*tunnel_edges_alpha_coeff);
 			
-			if(tunnel_lerp_val[i] < 1){
-				tunnel_lerp_val[i] += tunnel_lerp_inc[i];
-				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]);
-				
-				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
-					p.line(tunnel_start[i].x, tunnel_start[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
-			}else if(tunnel_lerp_val[i] < 2){
-				tunnel_lerp_val[i] += tunnel_lerp_inc[i];
-				tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]-1);
-				
-				if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
-					p.line(tunnel_target[i].x, tunnel_target[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
-			}else{
-				tunnel_step[i] = (int)p.random(4);
-				tunnel_lerp_inc[i] = p.random(0.05f, 0.1f);
-				tunnel_dir[i] = (int)p.random(-2, 2);
+			if(canDisplayTunnelSides){
+				if(tunnel_lerp_val[i] < 1){
+					tunnel_lerp_val[i] += tunnel_lerp_inc[i];
+					tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]);
+					
+					if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
+						p.line(tunnel_start[i].x, tunnel_start[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
+				}else if(tunnel_lerp_val[i] < 2){
+					tunnel_lerp_val[i] += tunnel_lerp_inc[i];
+					tunnel_pos[i] = PVector.lerp(tunnel_start[i], tunnel_target[i], tunnel_lerp_val[i]-1);
+					
+					if(p.noise(tunnel_step[i], i+p.millis()*0.001f) > 0.5f)
+						p.line(tunnel_target[i].x, tunnel_target[i].y, tunnel_pos[i].x, tunnel_pos[i].y);
+				}else{
+					tunnel_step[i] = (int)p.random(4);
+					tunnel_lerp_inc[i] = p.random(0.05f, 0.1f);
+					tunnel_dir[i] = (int)p.random(-2, 2);
 
-				
-				tunnel_lerp_val[i] = 0;
+					
+					tunnel_lerp_val[i] = 0;
+				}
 			}
-			
-			
 			
 			p.popMatrix();
 
 			if(tunnel_depth[i] < 1){
 				tunnel_depth[i] += tunnel_accel[i];
-//				tunnel_accel[i] += 0.001f;
 			}else{
 				tunnel_depth[i] = 0;
-//				tunnel_accel[i] = 0;
 			}
 		}
 	}
 	
 	void displayParticles(){
-		p.stroke(255);
+		p.stroke(255*particles_alpha);
 		p.strokeWeight(2);
 		PVector v = new PVector(p.width*0.5f, p.height*0.5f);
 		for(int i = 0; i < 1000; i++){

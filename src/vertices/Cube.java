@@ -1,5 +1,8 @@
 package vertices;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import processing.core.PApplet;
 import processing.core.PVector;
 
@@ -21,14 +24,13 @@ public class Cube {
 	PVector radI;
 	PVector radO;
 	
-	float thetaX;
-	float thetaX_coeff;
-
-	float thetaY;
-	float thetaY_coeff;
+	ArrayList<PVector> radii;
+	ArrayList<boolean[]> canShowInnerRadii;
+	ArrayList<Float> radiiTheta;
 	
-	float thetaZ;
-	float thetaZ_coeff;
+	
+	PVector theta;
+	PVector theta_coeff;
 	
 	float theta_inc = 0.000005f;
 	float max_theta = 0.000075f;
@@ -55,10 +57,10 @@ public class Cube {
 	float diagCoeffY;
 	float diagCoeffZ;
 
-	float radIncI = 5;
+	float radIncI = 7;
 	float innerTheta = 0;
 	
-	boolean canRotateStep = true;
+	boolean canRotateStep = false;
 
 	float radIncO = 10;
 
@@ -81,11 +83,11 @@ public class Cube {
 	float move_inc = 0.1f;
 	
 	static boolean show = true;
-	PVector canExpand = new PVector(1, 1, 1);
+	PVector canExpand = new PVector(0, 0, 10);
 	boolean canScale;
 	float expand_rate = 3f;
 	
-	static boolean isDrumming = true;
+	static boolean isDrumming = false;
 	
 	boolean constant_rotateX = false;
 	boolean constant_rotateY = false;
@@ -123,20 +125,16 @@ public class Cube {
 	Cube(PApplet _p){
 		this.p = _p;
 		
-		thetaX = 0;
-		thetaX_coeff = 0f;
+		theta = new PVector(0, 0, 0);
+		theta_coeff = new PVector(0, 0, 0);//0.000005f
 		targetX = 0;
 		valX = 0;
 		incX = 0.01f;
 
-		thetaY = 0;
-		thetaY_coeff = 0f;
 		targetY = 0;
 		valY = 0;
 		incY = 0.01f;
 
-		thetaZ = 0;
-		thetaZ_coeff = 0f;
 		targetZ = 0;
 		valZ = 0;
 		incZ = 0.01f;
@@ -145,6 +143,10 @@ public class Cube {
 		rad = new PVector(0, 0, 0);
 		radI = new PVector(0, 0, 0);
 		radO = new PVector (0, 0, 0);//fyi this used to be "width, width, width"
+		
+		radii = new ArrayList<PVector>();
+		canShowInnerRadii = new ArrayList<boolean[]>();
+		radiiTheta = new ArrayList<Float>();
 		
 		current = new PVector(0, 0, 0);
 		start = new PVector(0, 0, 0);
@@ -189,13 +191,22 @@ public class Cube {
 	
 	void update(){
 		//------ ROTATION
-		thetaX = PApplet.lerp(thetaX, targetX, valX);
-		thetaY = PApplet.lerp(thetaY, targetY, valY);
-		thetaZ = PApplet.lerp(thetaZ, targetZ, valZ);
+		theta.x = PApplet.lerp(theta.x, targetX, valX);
+		theta.y = PApplet.lerp(theta.y, targetY, valY);
+		theta.z = PApplet.lerp(theta.z, targetZ, valZ);
 		
 //		thetaX_coeff = Vertices.c_thetaX_coeff;
 //		thetaY_coeff = Vertices.c_thetaY_coeff;
 //		thetaZ_coeff = Vertices.c_thetaZ_coeff;
+		
+		if(constant_rotateX)
+			theta.x += theta_coeff.x;
+		
+		if(constant_rotateY)
+			theta.y += theta_coeff.y;
+		
+		if(constant_rotateZ)
+			theta.z += theta_coeff.z;
 
 		if (valX < 1)
 			valX += incX;
@@ -226,6 +237,28 @@ public class Cube {
 		else
 			radI.z = rad.z;
 		
+		for(int i = 0; i < radii.size(); i++){
+			PVector r = radii.get(i);
+			if(r.x < rad.x)
+				r.x += radIncI;
+			else
+				r.x = rad.x;
+			
+			if(r.y < rad.y)
+				r.y += radIncI;
+			else
+				r.y = rad.y;
+			
+			if(r.z < rad.z)
+				r.z += radIncI;
+			else
+				r.z = rad.z;
+			
+			if(r.x == rad.x){
+				radii.remove(i);
+				canShowInnerRadii.remove(i);
+			}
+		}
 		
 		
 		if (radO.x > rad.x)
@@ -389,9 +422,9 @@ public class Cube {
 		p.fill(0);
 		p.pushMatrix();
 		p.translate(trans.x, trans.y, trans.z);
-		p.rotateX(thetaX+p.millis()*thetaX_coeff);
-		p.rotateY(thetaY+p.millis()*thetaY_coeff);
-		p.rotateZ(thetaZ+p.millis()*thetaZ_coeff);
+		p.rotateX(theta.x + theta_coeff.x);
+		p.rotateY(theta.y + theta_coeff.y);
+		p.rotateZ(theta.z + theta_coeff.z);
 		p.scale(cube_scale);
 		
 //		if(show)
@@ -487,9 +520,18 @@ public class Cube {
 		p.strokeWeight(2);
 		drawBox(rad, 1);
 		
-		p.strokeWeight(1);
-		drawBox(radI, 0);
+		p.pushMatrix();
+		
 		p.stroke(255);
+		p.strokeWeight(1);
+		for(int i = 0; i < radii.size(); i++){
+			drawBox(radii.get(i), i+3);
+		}
+		
+		p.popMatrix();
+		
+		drawBox(radI, 0);
+		p.strokeWeight(3);
 		drawBox(radO, 2);
 		
 		p.stroke(255); //WHITE - FULL
@@ -511,12 +553,17 @@ public class Cube {
 		pos[7] = new PVector(r.x*0.5f+pulse[7].x, -r.y*0.5f+pulse[7].y, -r.z*0.5f+pulse[7].z);
 		
 		
-		if(canShowEdges && type == 1){
+		if(canShowEdges && (type == 1 || type > 2)){
 			for(int i = 0; i < pos.length-1; i++){
-				p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);
+				if(type > 2 && i < canShowInnerRadii.get(0).length){
+					if(canShowInnerRadii.get(type-3)[i]){
+						p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);
+					}
+				}else{
+					p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);
+				}
+				
 			}
-			
-			
 		}
 
 //		drawFaces(pos);
@@ -551,6 +598,21 @@ public class Cube {
 			
 			if(showOuterCubeEdge[4])
 				p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		}else if(type > 2){
+			if(canShowInnerRadii.get(type-3)[0])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
+			
+			if(canShowInnerRadii.get(type-3)[1])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
+			
+			if(canShowInnerRadii.get(type-3)[2])
+				p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
+			
+			if(canShowInnerRadii.get(type-3)[3])
+				p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
+			
+			if(canShowInnerRadii.get(type-3)[4])
+				p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
 		}else{
 			p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
 			p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
@@ -580,7 +642,7 @@ public class Cube {
 	
 	void changeInnerCube(){
 		for(int i = 0; i < showInnerCubeEdge.length; i++){
-			if(p.random(1) < 0.80f)
+			if(p.random(1) < 0.60f)
 				showInnerCubeEdge[i] = true;
 			else
 				showInnerCubeEdge[i] = false;
