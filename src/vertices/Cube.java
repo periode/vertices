@@ -55,12 +55,12 @@ public class Cube {
 	float diagCoeffY;
 	float diagCoeffZ;
 
-	float radIncI = 10;
+	float radIncI = 5;
 	float innerTheta = 0;
 	
 	boolean canRotateStep = true;
 
-	float radIncO = 20;
+	float radIncO = 10;
 
 	int det = 1;
 	
@@ -85,7 +85,7 @@ public class Cube {
 	boolean canScale;
 	float expand_rate = 3f;
 	
-	static boolean isDrumming = false;
+	static boolean isDrumming = true;
 	
 	boolean constant_rotateX = false;
 	boolean constant_rotateY = false;
@@ -103,12 +103,15 @@ public class Cube {
 	float circles_alpha = 0;
 	float circles_alpha_rate = 1f;
 	
+	boolean[] showInnerCubeEdge;
+	boolean[] showOuterCubeEdge;
+	
 	boolean canShowCircles = false;
 	boolean canShowDiagonals = false;
 	boolean canShowEdges = true;
 	
 	boolean canFizzleSphere = false;
-	boolean canFizzleCube = true;
+	boolean canFizzleCube = false;
 	boolean canFizzleMoreCube = false;
 	
 	float fizzleRate = 0f;
@@ -167,6 +170,19 @@ public class Cube {
 			pos_abs[i] = new PVector(0, 0, 0);
 		}
 		
+		showInnerCubeEdge = new boolean[5];
+		showOuterCubeEdge = new boolean[5];
+		
+		for(int i = 0; i < showInnerCubeEdge.length; i++){
+			if(p.random(1) < 0.5f){
+				showInnerCubeEdge[i] = true;
+				showOuterCubeEdge[i] = true;
+			}else{
+				showInnerCubeEdge[i] = false;
+				showOuterCubeEdge[i] = false;
+			}
+		}
+		
 
 //		drawBox(rad);
 	}
@@ -197,10 +213,14 @@ public class Cube {
 
 		if (radI.x < rad.x)
 			radI.x += radIncI;
+		else
+			radI.x = rad.x;
+		
 		if (radI.y < rad.y)
 			radI.y += radIncI;
 		else
 			radI.y = rad.y;
+		
 		if (radI.z < rad.z)
 			radI.z += radIncI;
 		else
@@ -212,10 +232,12 @@ public class Cube {
 			radO.x -= radIncO;
 		else
 			radO.x = rad.x;
+		
 		if (radO.y > rad.y)
 			radO.y -= radIncO;
 		else
 			radO.y = rad.y;
+		
 		if (radO.z > rad.z)
 			radO.z -= radIncO;
 		else
@@ -387,25 +409,25 @@ public class Cube {
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateX(diagX);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateY(diagY);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateZ(diagZ);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		
@@ -414,9 +436,9 @@ public class Cube {
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateX(diagX*2);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.pushMatrix();
@@ -430,9 +452,9 @@ public class Cube {
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateZ(diagZ*2);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		
@@ -441,16 +463,16 @@ public class Cube {
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 		p.rotateX(-diagX);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.pushMatrix();
 		p.rotateY(-diagY);
-		drawBox(rad, 0);
+		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.pushMatrix();
@@ -458,7 +480,7 @@ public class Cube {
 		p.rotateZ(-diagZ);
 		drawBox(rad, 1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		drawBox(radO, 2);
 		p.popMatrix();
 		
 		p.stroke(255, cube_alpha*0.5f); //WHITE - ALPHA
@@ -467,7 +489,8 @@ public class Cube {
 		
 		p.strokeWeight(1);
 		drawBox(radI, 0);
-		drawBox(radO, 0);
+		p.stroke(255);
+		drawBox(radO, 2);
 		
 		p.stroke(255); //WHITE - FULL
 		
@@ -488,7 +511,7 @@ public class Cube {
 		pos[7] = new PVector(r.x*0.5f+pulse[7].x, -r.y*0.5f+pulse[7].y, -r.z*0.5f+pulse[7].z);
 		
 		
-		if(canShowEdges){
+		if(canShowEdges && type == 1){
 			for(int i = 0; i < pos.length-1; i++){
 				p.line(pos[i].x, pos[i].y, pos[i].z, pos[i+1].x, pos[i+1].y, pos[i+1].z);
 			}
@@ -498,11 +521,44 @@ public class Cube {
 
 //		drawFaces(pos);
 		
-		p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
-		p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
-		p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
-		p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
-		p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		if(type == 0){
+			if(showInnerCubeEdge[0])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
+			
+			if(showInnerCubeEdge[1])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
+			
+			if(showInnerCubeEdge[2])
+				p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
+			
+			if(showInnerCubeEdge[3])
+				p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
+			
+			if(showInnerCubeEdge[4])
+				p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		}else if(type == 2){
+			if(showOuterCubeEdge[0])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
+			
+			if(showOuterCubeEdge[1])
+				p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
+			
+			if(showOuterCubeEdge[2])
+				p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
+			
+			if(showOuterCubeEdge[3])
+				p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
+			
+			if(showOuterCubeEdge[4])
+				p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		}else{
+			p.line(pos[0].x, pos[0].y, pos[0].z, pos[3].x, pos[3].y, pos[3].z);
+			p.line(pos[0].x, pos[0].y, pos[0].z, pos[7].x, pos[7].y, pos[7].z);
+			p.line(pos[5].x, pos[5].y, pos[5].z, pos[2].x, pos[2].y, pos[2].z);
+			p.line(pos[6].x, pos[6].y, pos[6].z, pos[1].x, pos[1].y, pos[1].z);
+			p.line(pos[7].x, pos[7].y, pos[7].z, pos[4].x, pos[4].y, pos[4].z);
+		}
+
 		
 //		p.textSize(24);
 //		p.fill(255);
@@ -513,12 +569,31 @@ public class Cube {
 		if(canShowDiagonals)
 			drawDiagonals(pos);
 		
+		
 		if(type == 1){
 			for(int i = 0; i < pos.length; i++){
 				pos_abs[i] = new PVector(p.modelX(pos[i].x, pos[i].y, pos[i].z), p.modelY(pos[i].x, pos[i].y, pos[i].z), p.modelZ(pos[i].x, pos[i].y, pos[i].z));
 			}
 		}
 			
+	}
+	
+	void changeInnerCube(){
+		for(int i = 0; i < showInnerCubeEdge.length; i++){
+			if(p.random(1) < 0.80f)
+				showInnerCubeEdge[i] = true;
+			else
+				showInnerCubeEdge[i] = false;
+		}
+	}
+	
+	void changeOuterCube(){
+		for(int i = 0; i < showOuterCubeEdge.length; i++){
+			if(p.random(1) < 0.60f)
+				showOuterCubeEdge[i] = true;
+			else
+				showOuterCubeEdge[i] = false;
+		}
 	}
 	
 	void drawFaces(PVector[] pos){

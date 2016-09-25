@@ -475,13 +475,23 @@ public class Vertices extends PApplet {
 		
 		//drumming
 		if(Cube.isDrumming){
-			if(beat(1)){
-				cube.radO.set(width*0.45f, width*0.45f);
+			if(beat(0)){
+				cube.changeOuterCube();
+				
+				if(cube.radO.x == cube.rad.x || cube.radO.x == 0){
+					cube.radO.set(width*0.4f, width*0.4f);
+				}
 			}
 			if(beat(2)){
-				cube.innerTheta = random(0, TWO_PI);
 				
-				cube.radI.set(0, 0, 0);
+				cube.changeInnerCube();
+				
+				if(cube.radI.x == cube.rad.x || cube.radI.x == 0){
+//					cube.innerTheta = random(0, TWO_PI);
+					
+					cube.radI.set(0, 0, 0);
+				}
+
 			}
 		}
 		

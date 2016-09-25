@@ -49,6 +49,12 @@ public class Grid {
 	
 	boolean canDisplayParticles = false;
 	boolean canModuloParticles = false;
+	boolean canDisplayTunnel = true;
+	
+	float tunnel_alpha_coeff = 0;
+	float tunnel_edges_alpha_coeff = 0;
+	float tunnel_perspective_alpha_coeff = 0;
+	float tunnel_alpha_inc = 0.01f;
 	
 	float modulo_step = 0;
 	int[] tunnel_step;
@@ -139,6 +145,20 @@ public class Grid {
 
 		}
 		
+		if(canDisplayTunnel){
+			if(tunnel_alpha_coeff < 1){
+				tunnel_alpha_coeff += tunnel_alpha_inc;
+				tunnel_edges_alpha_coeff += tunnel_alpha_inc;
+				tunnel_perspective_alpha_coeff += tunnel_alpha_inc;	
+			}
+		}else{
+			if(tunnel_alpha_coeff > 0){
+				tunnel_alpha_coeff -= tunnel_alpha_inc;
+				tunnel_edges_alpha_coeff -= tunnel_alpha_inc;
+				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc;	
+			}
+		}
+		
 		threshold_h_r = PApplet.map(PApplet.cos(p.millis()*lfo_rate), -1f, 1f, 0.1f, 0.85f);
 		threshold_w_r = PApplet.map(PApplet.sin(p.millis()*lfo_rate), -1f, 1f, 0.1f, 0.85f);
 		
@@ -175,7 +195,11 @@ public class Grid {
 			displayFrame();
 		
 		
-//		p.noFill();
+		if(canDisplayTunnel)
+			displayTunnel();
+	}
+	
+	void displayTunnel(){
 		for(int i = 0; i < tunnel_depth.length; i++){
 			p.strokeWeight(1);
 			p.pushMatrix();
@@ -196,17 +220,17 @@ public class Grid {
 //			float r = p.noise(p.millis()*0.01f+i*0.5f)
 //			float r = PApplet.map(PApplet.cos(p.millis()*0.0005f+PApplet.map(i, 0, tunnel_depth.length, 0, PApplet.PI/tunnel_depth.length)), -1f, 1f, 0f, 1f);
 //			float r = PApplet.map(i, 0, tunnel_depth.length, 0, 1f);
-			float c = PApplet.map(tunnel_depth[i], 0, 1, 0, 105);
+			float c = PApplet.map(tunnel_depth[i], 0, 1, 0, 105)*tunnel_alpha_coeff;
 			
 			p.stroke(c);
 			p.strokeWeight(1);
-			p.rect(0, 0, w, h);
+//			p.rect(0, 0, w, h);
 			
 
 			
 			
 			p.strokeWeight(3);
-			p.stroke((int)(c*2f));
+			p.stroke((int)(c*2f)*tunnel_perspective_alpha_coeff);
 			
 			if(w2 > w && p.noise(p.millis()*0.001f, i*0.75f) > 0.5f){
 				p.line(-w*0.5f, h*0.5f, -w2*0.5f, h2*0.5f);
@@ -231,6 +255,7 @@ public class Grid {
 			}
 			
 			
+			p.stroke((int)(c*2f)*tunnel_edges_alpha_coeff);
 			
 			if(tunnel_lerp_val[i] < 1){
 				tunnel_lerp_val[i] += tunnel_lerp_inc[i];
