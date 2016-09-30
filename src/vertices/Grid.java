@@ -22,7 +22,7 @@ public class Grid {
 	float backdrop_h = 0;
 	float backdrop_rate = 0.04f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = true;
+	boolean backdrop_expand = false;
 	
 	boolean backdrop_expand_outro = false;
 	float backdrop_rate_outro = 0.0025f;

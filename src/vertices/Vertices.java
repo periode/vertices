@@ -140,6 +140,9 @@ public class Vertices extends PApplet {
 	float bpm_start_1 = 0;
 	float bpm_timer_1 = 500;
 	
+	float bpm_start_vertex_1 = 0;
+	float bpm_timer_vertex_1 = 500;
+	
 	float bpm_start_2 = 0;
 	float bpm_timer_2 = 250;
 	
@@ -251,7 +254,7 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
-//		timer_events();
+		timer_events();
 		behavior();
 		
 		if(entracte){
@@ -377,20 +380,22 @@ public class Vertices extends PApplet {
 			cube.canRotateStep = true;
 			cube.canShowEdges = true;
 			canDisplayBlocks = false;
-			grid.canDisplayTunnel = true;
-			grid.canShowTunnelPerspective = true;
 			cube.canExpand.x = 1;
 		}
 		
 		if(millis() > ts_rotate_2D){
-
 			cube.canExpand.y = 1;
 		}
 			
 		
 		if(millis() > ts_rotate_3D){
+//			cube.canExpand.z = 1;
+			grid.canDisplayTunnel = true;
+			grid.canShowTunnelPerspective = true;
+		}
+		
+		if(millis() > ts_rotate_3D+8000){
 			cube.canExpand.z = 1;
-
 		}
 		
 		//drums
@@ -412,7 +417,7 @@ public class Vertices extends PApplet {
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
 			cube.canFizzleCube = false;
-			grid.canShowTunnelPerspective = false;
+//			grid.canShowTunnelPerspective = false;
 			cube.canGlitchCircles = false;
 			cube.canShowCircles = true;
 			cube.canShowEdges = false;
@@ -445,10 +450,11 @@ public class Vertices extends PApplet {
 			cube.canShowEdges = true;
 			cube.canRotateStep = true;
 			cube.canShowDiagonals = true;
+			cube.distortVertices = 0;
 		}
 		
 		if(millis() > ts_pads_post_cut){
-			cube.distortVertices = 0;
+			cube.pulse_range = 30;
 		}
 		
 		if(millis() > ts_start_fizzle){
@@ -456,10 +462,11 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_start_fizzle_more){
-			cube.canFizzleMoreCube = true;
+			cube.pulse_range = 40;
 		}
 		
 		if(millis() > ts_congas_vertices){
+			cube.pulse_range = 60;
 			cube.distortVertices = 1;
 		}
 		
@@ -551,12 +558,12 @@ public class Vertices extends PApplet {
 		}
 		
 		if(cube.distortVertices != 2){
-			if(beatVertex(0)){
+			if(beatVertex(1)){
 				moveVertex(cube.distortVertices);
 			}
 			
-//			if(beatVertex(0))
-//				cube.resetCube();
+			if(beatVertex(0))
+				cube.resetCube();
 		}
 	}
 	
@@ -612,8 +619,8 @@ public class Vertices extends PApplet {
 				return false;
 			}
 		}else if(division == 1){
-			if(millis() - bpm_start_1 > bpm_timer_1){
-				bpm_start_1 = millis();
+			if(millis() - bpm_start_vertex_1 > bpm_timer_vertex_1){
+				bpm_start_vertex_1 = millis();
 				return true;
 			}else{
 				return false;
@@ -727,7 +734,7 @@ public class Vertices extends PApplet {
 	
 	void unify(float value, int type){
 		float v = map(value, 0, 127, 0, 1);
-		println(v);
+		
 		for(int i = 0; i < partitions.size(); i++){
 			if(partitions.get(i).type == type){
 				partitions.get(i).unifier = v;

@@ -18,7 +18,7 @@ public class Cube {
 	float[] pulse_val;
 	boolean[] canPulse;
 	float pulse_inc;
-	float pulse_range = 80;
+	float pulse_range = 20;
 	
 	float maxRad;
 	PVector rad;
@@ -85,7 +85,8 @@ public class Cube {
 	float move_inc = 0.1f;
 	
 	static boolean show = true;
-	PVector canExpand = new PVector(1, 1, 1);
+	PVector canExpand = new PVector(0, 0, 0);
+//	PVector canExpand = new PVector(1, 1, 1);
 	boolean canScale;
 	float expand_rate = 3f;
 	
@@ -123,7 +124,7 @@ public class Cube {
 	float fizzleRate = 0f;
 	float fizzleRateSphere = 0f;
 	
-	int distortVertices = 1;
+	int distortVertices = 2;
 	
 	Cube(){}
 	
@@ -163,7 +164,7 @@ public class Cube {
 		pulse_target = new PVector[8];
 		pulse_val = new float[8];
 		canPulse = new boolean[8];
-		pulse_inc = 0.1f;
+		pulse_inc = 0.2f;
 		
 		pos = new PVector[8];
 		pos_abs = new PVector[8];
@@ -326,7 +327,7 @@ public class Cube {
 			start = end.copy();
 		}
 		
-		p.println(canPulse[0]);
+
 		for(int i =0; i < pulse.length; i++){
 			if(canPulse[i]){
 				pulse[i] = PVector.lerp(pulse_origin[i], pulse_target[i], pulse_val[i]);
