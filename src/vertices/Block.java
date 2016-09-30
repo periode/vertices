@@ -54,10 +54,6 @@ public class Block {
 			else{
 				alpha -= 0.4f;
 			}
-				if(this.w > 0){
-//					this.w-=1*this.dirW;
-//					this.h-=1*this.dirH;
-				}
 		}else{
 			if(alpha < 255)
 				alpha+=3;
@@ -66,11 +62,8 @@ public class Block {
 	}
 	
 	void display(){
-//		p.noStroke();
 		p.strokeWeight(6);
 		p.stroke(col, alpha);
-//		p.fill(col, alpha);
-//		p.rectMode(p.CENTER);
 		p.noFill();
 		p.rect(this.pos.x, this.pos.y, p.constrain(this.w, 0, 2), p.constrain(this.h, 0, 2));
 	}

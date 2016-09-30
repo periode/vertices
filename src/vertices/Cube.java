@@ -61,7 +61,7 @@ public class Cube {
 	float radIncI = 7;
 	float innerTheta = 0;
 	
-	boolean canRotateStep = false;
+	boolean canRotateStep = true;
 
 	float radIncO = 10;
 
@@ -73,7 +73,7 @@ public class Cube {
 	int blue;
 	float cube_alpha = 0;
 	float diagonals_alpha = 0;
-	float cube_alpha_rate = 0.5f;
+	float cube_alpha_rate = 5f;
 	
 	PVector current;
 	PVector start;
@@ -84,7 +84,7 @@ public class Cube {
 	float move_inc = 0.1f;
 	
 	static boolean show = true;
-	PVector canExpand = new PVector(0, 0, 10);
+	PVector canExpand = new PVector(1, 1, 1);
 	boolean canScale;
 	float expand_rate = 3f;
 	
@@ -103,12 +103,14 @@ public class Cube {
 	float max_depth = 0;
 	float max_width = 0;
 	
-	float circles_alpha = 0;
+	float[] circles_alpha = {0, 0, 0};
+	float circle_color = 0;
 	float circles_alpha_rate = 0.5f;
 	
 	boolean[] showInnerCubeEdge;
 	boolean[] showOuterCubeEdge;
 	
+	boolean canGlitchCircles = false;
 	boolean canShowCircles = false;
 	boolean canShowDiagonals = false;
 	boolean canShowEdges = true;
@@ -352,11 +354,11 @@ public class Cube {
 		}
 		
 		if(canFizzleMoreCube){
-			if(fizzleRate < 1f)
-				fizzleRate += 0.01f;
+			if(fizzleRate < 2.5f)
+				fizzleRate += 0.075f;
 		}else if(canFizzleCube){
-			if(fizzleRate < 0.65f)
-				fizzleRate += 0.025f;
+			if(fizzleRate < 1.5f)
+				fizzleRate += 0.1f;
 		}
 		
 		
@@ -372,13 +374,28 @@ public class Cube {
 			}
 		}
 		
+		if(canGlitchCircles){
+			for(int i = 0; i < circles_alpha.length; i++){
+				if(p.noise(p.millis()*0.04f+i*0.5f) > 0.75f)
+					circles_alpha[i] = 255;
+				else
+					circles_alpha[i] = 0;
+			}
+
+			
+		}
+		
 		//show/hide sphere
 		if(canShowCircles){
-			if(circles_alpha < 255)
-				circles_alpha+= circles_alpha_rate;
+			for(int i = 0; i < circles_alpha.length; i++){
+				if(circles_alpha[i] < 255)
+					circles_alpha[i]+= circles_alpha_rate;
+			}
 		}else{
-			if(circles_alpha > 0)
-				circles_alpha-=circles_alpha_rate*5;
+			for(int i = 0; i < circles_alpha.length; i++){
+				if(circles_alpha[i] > 0)
+					circles_alpha[i] -=circles_alpha_rate*5;	
+			}
 		}
 		
 		
@@ -429,8 +446,7 @@ public class Cube {
 		p.rotateZ(theta.z + theta_coeff.z);
 		p.scale(cube_scale);
 		
-//		if(show)
-			drawCube();
+		drawCube();
 		
 		p.popMatrix();
 	}
@@ -439,7 +455,7 @@ public class Cube {
 //		p.strokeWeight(sw);
 		p.strokeWeight(1);
 //		p.fill(0);
-		p.stroke(255, cube_alpha);//RED
+		p.stroke(255, 100, 100, cube_alpha*0.5f);//RED
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -449,24 +465,24 @@ public class Cube {
 		drawBox(radO, 2);
 		p.popMatrix();
 		
-		p.pushMatrix();
-		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-		p.rotateY(diagY);
-		drawBox(rad, 1);
-		drawBox(radI, 0);
-		drawBox(radO, 2);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
+//		p.rotateY(diagY);
+//		drawBox(rad, 1);
+//		drawBox(radI, 0);
+//		drawBox(radO, 2);
+//		p.popMatrix();
 		
-		p.pushMatrix();
-		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-		p.rotateZ(diagZ);
-		drawBox(rad, 1);
-		drawBox(radI, 0);
-		drawBox(radO, 2);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
+//		p.rotateZ(diagZ);
+//		drawBox(rad, 1);
+//		drawBox(radI, 0);
+//		drawBox(radO, 2);
+//		p.popMatrix();
 		
 		
-		p.stroke(255, cube_alpha); //GREEN
+		p.stroke(100, 255, 100, cube_alpha*0.5f); //GREEN
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -476,24 +492,24 @@ public class Cube {
 		drawBox(radO, 2);
 		p.popMatrix();
 		
-		p.pushMatrix();
-		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-		p.rotateY(diagY*2);
-		drawBox(rad, 0);
-		drawBox(radI, 0);
-		drawBox(radO, 0);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
+//		p.rotateY(diagY*2);
+//		drawBox(rad, 0);
+//		drawBox(radI, 0);
+//		drawBox(radO, 0);
+//		p.popMatrix();
 		
-		p.pushMatrix();
-		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-		p.rotateZ(diagZ*2);
-		drawBox(rad, 1);
-		drawBox(radI, 0);
-		drawBox(radO, 2);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
+//		p.rotateZ(diagZ*2);
+//		drawBox(rad, 1);
+//		drawBox(radI, 0);
+//		drawBox(radO, 2);
+//		p.popMatrix();
 		
 		
-		p.stroke(255, cube_alpha);//BLUE
+		p.stroke(100, 100, 255, cube_alpha*0.5f);//BLUE
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -503,20 +519,20 @@ public class Cube {
 		drawBox(radO, 2);
 		p.popMatrix();
 		
-		p.pushMatrix();
-		p.rotateY(-diagY);
-		drawBox(rad, 1);
-		drawBox(radI, 0);
-		drawBox(radO, 2);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.rotateY(-diagY);
+//		drawBox(rad, 1);
+//		drawBox(radI, 0);
+//		drawBox(radO, 2);
+//		p.popMatrix();
 		
-		p.pushMatrix();
-		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-		p.rotateZ(-diagZ);
-		drawBox(rad, 1);
-		drawBox(radI, 0);
-		drawBox(radO, 2);
-		p.popMatrix();
+//		p.pushMatrix();
+//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
+//		p.rotateZ(-diagZ);
+//		drawBox(rad, 1);
+//		drawBox(radI, 0);
+//		drawBox(radO, 2);
+//		p.popMatrix();
 		
 		p.stroke(255, cube_alpha*0.5f); //WHITE - ALPHA
 		p.strokeWeight(2);
@@ -537,7 +553,7 @@ public class Cube {
 		drawBox(radO, 2);
 		
 		
-		if(canShowCircles)
+		if(canShowCircles || canGlitchCircles)
 			drawCircles(rad);
 	}
 	
@@ -711,16 +727,19 @@ public class Cube {
 	void drawCircles(PVector r){
 		p.strokeWeight(1);
 //		p.noFill();
-		p.stroke(255, circles_alpha);
+		p.stroke(255, circles_alpha[0]);
+		p.fill(0, circles_alpha[0]);
+		p.noFill();
 		int steps = 32;
 		p.pushMatrix();
 		for(int i = 0; i < steps; i++){
 			p.translate(p.random(-1f, 1f)*fizzleRateSphere, p.random(-1f, 1f)*fizzleRateSphere, p.random(-1f, 1f)*fizzleRateSphere);
-			if(i % 2 == 0)
+			if(i % 1 == 0)
 				p.arc(0, 0, r.y*0.95f, r.y*0.95f, i*(PApplet.TWO_PI/steps), (i+1)*(PApplet.TWO_PI/steps));
 		}
 		p.popMatrix();
 		
+		p.stroke(255, circles_alpha[1]);
 		p.pushMatrix();
 		p.rotateX(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));
 		for(int i = 0; i < steps; i++){
@@ -730,12 +749,14 @@ public class Cube {
 		}
 		p.popMatrix();
 		
+		p.stroke(255, circles_alpha[2]);
 		p.pushMatrix();
 		p.rotateX(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));
 		p.rotateY(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));
 		for(int i = 0; i < steps; i++){
 			p.translate(p.random(-1f, 1f)*fizzleRateSphere, p.random(-1f, 1f)*fizzleRateSphere, p.random(-1f, 1f)*fizzleRateSphere);
-			p.arc(0, 0, r.y*0.95f, r.y*0.95f, i*(PApplet.TWO_PI/steps), (i+1)*(PApplet.TWO_PI/steps));
+			if(i % 2 == 0)
+				p.arc(0, 0, r.y*0.95f, r.y*0.95f, i*(PApplet.TWO_PI/steps), (i+1)*(PApplet.TWO_PI/steps));
 		}
 		p.popMatrix();
 	}
@@ -744,13 +765,16 @@ public class Cube {
 		p.stroke(255, cube_alpha);
 		for(int i = 0; i < pos.length; i++){
 			for(int j = 0; j < pos.length-1; j++){
+				p.pushMatrix();
 				p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 				for(float k = 0; k < 10; k++){
-					if(p.noise(p.millis()*0.0001f, k) > 0.15f)
+					if(p.noise(p.millis()*0.0001f, k) > 0.45f)
 						p.line(PApplet.lerp(pos[i].x, pos[j].x, k*0.1f), PApplet.lerp(pos[i].y, pos[j].y, k*0.1f), PApplet.lerp(pos[i].z, pos[j].z, k*0.1f), PApplet.lerp(pos[i].x, pos[j].x, (k+1)*0.1f), PApplet.lerp(pos[i].y, pos[j].y, (k+1)*0.1f), PApplet.lerp(pos[i].z, pos[j].z, (k+1)*0.1f));
 				}
+				p.popMatrix();
 
 			}
-		}	
+		}
+		
 	}
 }

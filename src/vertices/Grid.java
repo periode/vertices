@@ -22,7 +22,7 @@ public class Grid {
 	float backdrop_h = 0;
 	float backdrop_rate = 0.04f;
 	float backdrop_val = 0;
-	boolean backdrop_expand = false;
+	boolean backdrop_expand = true;
 	
 	boolean backdrop_expand_outro = false;
 	float backdrop_rate_outro = 0.0025f;
@@ -135,8 +135,8 @@ public class Grid {
 			if(backdrop_expand_outro)
 				backdrop_w = PApplet.lerp(0, p.width*1.85f, p.pow(backdrop_val, 2));
 			
-			backdrop_h = PApplet.lerp(0, p.height*1f, PApplet.pow(backdrop_val, 2));
-			backdrop_w = PApplet.lerp(0, p.width*1f, PApplet.pow(backdrop_val, 2));
+			backdrop_h = PApplet.lerp(0, p.height*1.1f, PApplet.pow(backdrop_val, 2));
+			backdrop_w = PApplet.lerp(0, p.width*1.1f, PApplet.pow(backdrop_val, 2));
 			
 			top_border = p.height*PApplet.lerp(0.5f, lower_limit, PApplet.pow(backdrop_val, 2));
 			bottom_border = p.height*PApplet.lerp(0.5f, upper_limit, PApplet.pow(backdrop_val, 2));
@@ -207,11 +207,16 @@ public class Grid {
 
 		
 		p.fill(0);
-		p.noStroke();
+		
+		p.strokeWeight(5);
+		p.strokeCap(PApplet.SQUARE);
 		p.pushMatrix();
 		p.translate(p.width*0.5f, p.height*0.5f, 5);
 		p.rectMode(PApplet.CENTER);
-		p.rect(0, 0, backdrop_w, backdrop_h);
+		for(int i = 0; i < 300; i+= 100){
+			p.stroke(255-i);
+			p.rect(0, 0, backdrop_w+i, backdrop_h+i);
+		}
 		p.popMatrix();
 		
 		
@@ -348,7 +353,7 @@ public class Grid {
 			}
 			
 			
-			float l_val = PApplet.constrain(((i+p.millis()*0.001f)%1000f)*0.001f, 0f, 0.85f);
+			float l_val = PApplet.constrain(((i+p.millis()*0.001f)%1000f)*0.001f, 0f, 0.75f);
 			switch (m) {
 			case 0://bottom right
 				p.point(PApplet.lerp(left_border, v.x, l_val), PApplet.min(PApplet.lerp(top_border, v.y, l_val)+p.noise(p.millis()*0.025f, i*0.1f)*particle_scale*PApplet.sin(p.millis()*0.001f)*PApplet.map(i, 0, 1000, 0f, 2f)*PApplet.map(i, 1000, 0, 0f, 2f), top_border), z_depth);

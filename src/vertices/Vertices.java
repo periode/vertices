@@ -87,7 +87,7 @@ public class Vertices extends PApplet {
 	static float ts_drums_in_1 = 76*1000f;
 	
 	static float ts_drums_out_1 = 84*1000f;
-	static float ts_rotate_3D = 84*1000f;
+	static float ts_rotate_3D = 0*1000f;//84
 	
 	static float ts_drums_in_2 = 92*1000f;
 	static float ts_drums_out_2 = 100*1000f;
@@ -242,7 +242,7 @@ public class Vertices extends PApplet {
 	}
 
 	public void update(){
-		timer_events();
+//		timer_events();
 		behavior();
 		
 		
@@ -349,8 +349,8 @@ public class Vertices extends PApplet {
 				//slow noise, increased by a mapped version of i so that we don't get the noise of reducing blocks.size()
 				//and the threshold increased as time goes by
 				if(noise((millis()-ts_intro_open_filter)*0.0000001f*map(i, 0, blocks.size(), 0, grid.cols*grid.rows*0.825f)) < map(millis(), ts_intro_open_filter, ts_open_canvas, 0.0f, 0.8f)){
-					//do not display
-					//or do something interesting?
+					b.alpha *= 0.75f;
+					b.display();
 				}else{
 					b.display();
 				}
@@ -410,11 +410,11 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
-//			cube.canRotateStep = false;
+			cube.canFizzleCube = false;
 			grid.canShowTunnelPerspective = false;
 			cube.canShowCircles = true;
 			cube.canShowEdges = false;
-			grid.canDisplayParticles = true;
+//			grid.canDisplayParticles = true;
 //			grid.canModuloParticles = true;
 		}
 		
@@ -451,11 +451,11 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_start_fizzle_more){
-			
+			cube.canFizzleMoreCube = true;
 		}
 		
 		if(millis() > ts_congas_vertices){
-			cube.distortVertices = 2;
+			cube.distortVertices = 1;
 		}
 		
 		if(millis() > ts_outro_kick_cut){
@@ -471,6 +471,7 @@ public class Vertices extends PApplet {
 		
 		if(millis() > ts_outro_fade_out){
 			grid.canShowTunnelPerspective = false;
+			grid.canDisplayTunnelSides = false;
 			grid.backdrop_expand_outro = true;
 		}
 		
@@ -524,12 +525,6 @@ public class Vertices extends PApplet {
 				}
 				
 				cube.canShowInnerRadii.add(b);
-				if(cube.radI.x == cube.rad.x || cube.radI.x == 0){
-//					cube.innerTheta = random(0, TWO_PI);
-					
-//					cube.radI.set(0, 0, 0);
-				}
-
 			}
 		}
 		
@@ -552,7 +547,7 @@ public class Vertices extends PApplet {
 		
 		if(cube.distortVertices != 0){
 			if(beat(cube.distortVertices)){
-				moveVertex(0);
+				moveVertex(1);
 			}
 			
 			if(beat(0))
