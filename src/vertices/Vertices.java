@@ -12,7 +12,10 @@ public class Vertices extends PApplet {
 	MidiBus midi_beatstep;
 	MidiBus midi_kontrol;
 	
-	boolean entracte =  true;
+	boolean entracte = false;
+	float entracte_lerp_val = 0;
+	
+	static float bg_color = 0;
 
 	int channel;
 	int pitch;
@@ -77,9 +80,9 @@ public class Vertices extends PApplet {
 	static float c_height;
 	
 	//---- TIME
-	static float ts_intro_open_filter = 44*1000f; //0'40"
-	static float ts_open_canvas =  68*1000f; // 1'17"
-	static float ts_show_line = 69*1000f; //1'19"
+	static float ts_intro_open_filter = 42*1000f;
+	static float ts_open_canvas =  68*1000f;
+	static float ts_show_line = 69*1000f; 
 	static float ts_rotate_1D = 69*1000f;
 	
 	static float ts_show_square = 75*1000f;
@@ -87,7 +90,7 @@ public class Vertices extends PApplet {
 	static float ts_drums_in_1 = 76*1000f;
 	
 	static float ts_drums_out_1 = 84*1000f;
-	static float ts_rotate_3D = 0*1000f;//84
+	static float ts_rotate_3D = 84*1000f;//84
 	
 	static float ts_drums_in_2 = 92*1000f;
 	static float ts_drums_out_2 = 100*1000f;
@@ -131,11 +134,17 @@ public class Vertices extends PApplet {
 	float bpm_start_0 = 0;
 	float bpm_timer_0 = 1000;
 	
+	float bpm_start_vertex_0 = 0;
+	float bpm_timer_vertex_0 = 1000;
+	
 	float bpm_start_1 = 0;
 	float bpm_timer_1 = 500;
 	
 	float bpm_start_2 = 0;
 	float bpm_timer_2 = 250;
+	
+	float bpm_start_vertex_2 = 0;
+	float bpm_timer_vertex_2 = 250;
 	
 	float bpm_start_4 = 0;
 	float bpm_timer_4 = 125;
@@ -245,7 +254,19 @@ public class Vertices extends PApplet {
 //		timer_events();
 		behavior();
 		
-		
+		if(entracte){
+			bg_color = lerp(0, 255, entracte_lerp_val);
+			cube.circle_color = lerp(255, 0, entracte_lerp_val);
+			
+			if(entracte_lerp_val < 1)
+				entracte_lerp_val += 0.0075f;
+		}else{
+			if(entracte_lerp_val > 0)
+				entracte_lerp_val -= 0.2f;
+			
+			bg_color = lerp(0, 255, entracte_lerp_val);
+			cube.circle_color = lerp(255, 0, entracte_lerp_val);
+		}
 		
 		for(int i = 0; i < partitions.size(); i++){
 			if(partitions.get(i) != null)
@@ -263,12 +284,6 @@ public class Vertices extends PApplet {
 			else
 				blocks.get(i).update();
 		}
-
-//		if(intro && intro_pixels)
-//			introPixels();
-//
-//		if(outro)
-//			outroPixels();
 
 		if(world != null)
 			world.update();
@@ -303,21 +318,12 @@ public class Vertices extends PApplet {
 		}
 	}
 
-	public void drawBackground(){
-//		pushMatrix();
-//		fill(0);
-//		rectMode(CENTER);
-//		rect(width*0.5f, height*0.5f, -1000, width*2, height*2);
-//		popMatrix();
-		background(0);
-	}
+
 	
 	public void draw() {
 		noCursor();
 		update();
-
-		drawBackground();
-
+		background(0);
 
 		for(int i = 0; i < partitions.size(); i++){
 			partitions.get(i).display();
@@ -328,12 +334,6 @@ public class Vertices extends PApplet {
 		if(cube != null && grid.backdrop_expand)
 			cube.display();
 
-		
-		if(entracte){
-			fill(0);
-			noStroke();
-			rect(0, 0, width*2, height*2);
-		}
 		
 		if(canDisplayBlocks)
 			displayBlocks();
@@ -407,18 +407,22 @@ public class Vertices extends PApplet {
 		
 		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
 			cube.canFizzleCube = true;
+			cube.canGlitchCircles = true;
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
 			cube.canFizzleCube = false;
 			grid.canShowTunnelPerspective = false;
+			cube.canGlitchCircles = false;
 			cube.canShowCircles = true;
 			cube.canShowEdges = false;
+			entracte = true;
 //			grid.canDisplayParticles = true;
 //			grid.canModuloParticles = true;
 		}
 		
 		if(millis() > ts_break_cut_drums){
+			cube.canGlitchCircles = false;
 			cube.canRotateStep = false; 
 			cube.constant_rotateX = true;
 		}
@@ -433,6 +437,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_kick_back){
+			entracte = false;
 			grid.canDisplayParticles = false;
 			grid.canShowTunnelPerspective = true;
 			grid.canDisplayTunnelSides = true;
@@ -443,7 +448,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_pads_post_cut){
-			cube.distortVertices = 1;
+			cube.distortVertices = 0;
 		}
 		
 		if(millis() > ts_start_fizzle){
@@ -466,7 +471,7 @@ public class Vertices extends PApplet {
 			cube.constant_rotateX = false;
 			cube.constant_rotateY = false;
 			cube.constant_rotateZ = false;
-			cube.distortVertices = 0;
+			cube.distortVertices = 2;
 		}
 		
 		if(millis() > ts_outro_fade_out){
@@ -545,13 +550,13 @@ public class Vertices extends PApplet {
 				cube.theta_coeff.z += cube.theta_inc;
 		}
 		
-		if(cube.distortVertices != 0){
-			if(beat(cube.distortVertices)){
-				moveVertex(1);
+		if(cube.distortVertices != 2){
+			if(beatVertex(0)){
+				moveVertex(cube.distortVertices);
 			}
 			
-			if(beat(0))
-				cube.resetCube();
+//			if(beatVertex(0))
+//				cube.resetCube();
 		}
 	}
 	
@@ -581,6 +586,41 @@ public class Vertices extends PApplet {
 		}else if(division == 2){
 			if(millis() - bpm_start_2 > bpm_timer_2){
 				bpm_start_2 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 4){
+			if(millis() - bpm_start_4 > bpm_timer_4){
+				bpm_start_4 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else{//if wrong input
+			println("invalid sub-division");
+			return false;
+		}
+	}
+	
+	boolean beatVertex(int division){
+		if(division == 0){
+			if(millis() - bpm_start_vertex_0 > bpm_timer_vertex_0){
+				bpm_start_vertex_0 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 1){
+			if(millis() - bpm_start_1 > bpm_timer_1){
+				bpm_start_1 = millis();
+				return true;
+			}else{
+				return false;
+			}
+		}else if(division == 2){
+			if(millis() - bpm_start_vertex_2 > bpm_timer_vertex_2){
+				bpm_start_vertex_2 = millis();
 				return true;
 			}else{
 				return false;
@@ -699,18 +739,6 @@ public class Vertices extends PApplet {
 			
 		if(key == 'e')
 			entracte = !entracte;
-		
-//		if(key == 'i'){
-//			intro = false;
-//		}
-//		
-//		if(key == 'o'){
-//			outro = true;
-//			intro_pos = new PVector(0, 0);
-//		}
-//		
-//		if(key == 'p')
-//			intro_pixels = !intro_pixels;
 
 		if(key =='w'){
 			world = new World(this);
@@ -723,7 +751,7 @@ public class Vertices extends PApplet {
 			moveVertex(1);
 		
 		if(key == 'r')
-			resetCube();
+			cube.resetCube();
 		
 		//in/out radius
 		if(key == 'i')
@@ -809,33 +837,24 @@ public class Vertices extends PApplet {
 			println("wrong axis, bae.");
 		}
 	}
-
-	public void resetCube(){
-//		cube.pulse = new PVector[8];
-		
-		for(int i = 0; i < cube.pulse_target.length; i++){
-			cube.pulse_target[i] = new PVector(0, 0, 0);
-			cube.canPulse[i] = true;
-			cube.pulse_val[i] = 0;
-		}
-	}
 	
 	public void moveVertex(int t){
 		if(t == 0){
 			int index = (int)random(cube.pulse.length);
-			PVector v = new PVector(random(-100, 100), random(-100, 100), random(-100, 100));
-			cube.pulse_target[index] = v;
+			PVector v = new PVector(random(-cube.pulse_range, cube.pulse_range), random(-cube.pulse_range, cube.pulse_range), random(-cube.pulse_range, cube.pulse_range));
+			cube.pulse_target[index] = v.copy();
 			cube.canPulse[index] = true;
 			cube.pulse_val[index] = 0;
 		}else if(t == 1){
 			for(int i = 0; i < cube.pulse.length; i++){
-				cube.pulse[i].add(new PVector(random(-100, 100), random(-100, 100), random(-100, 100)));
+				PVector v = new PVector(random(-cube.pulse_range, cube.pulse_range), random(-cube.pulse_range, cube.pulse_range), random(-cube.pulse_range, cube.pulse_range));
+				cube.pulse_target[i] = v.copy();
 				cube.canPulse[i] = true;
 				cube.pulse_val[i] = 0;
 			}
 		}else{
 			println("reset all");
-			resetCube();
+			cube.resetCube();
 		}
 	}
 
@@ -969,7 +988,7 @@ public class Vertices extends PApplet {
 					break;
 				case 36://----SECOND ROW
 //					Cube.show = !Cube.show;
-					resetCube();
+					cube.resetCube();
 					break;
 				case 37:
 //					move("left");

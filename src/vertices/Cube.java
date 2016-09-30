@@ -18,6 +18,7 @@ public class Cube {
 	float[] pulse_val;
 	boolean[] canPulse;
 	float pulse_inc;
+	float pulse_range = 80;
 	
 	float maxRad;
 	PVector rad;
@@ -61,7 +62,7 @@ public class Cube {
 	float radIncI = 7;
 	float innerTheta = 0;
 	
-	boolean canRotateStep = true;
+	boolean canRotateStep = false;
 
 	float radIncO = 10;
 
@@ -104,8 +105,8 @@ public class Cube {
 	float max_width = 0;
 	
 	float[] circles_alpha = {0, 0, 0};
-	float circle_color = 0;
-	float circles_alpha_rate = 0.5f;
+	float circle_color = 255;
+	float circles_alpha_rate = 5f;
 	
 	boolean[] showInnerCubeEdge;
 	boolean[] showOuterCubeEdge;
@@ -122,7 +123,7 @@ public class Cube {
 	float fizzleRate = 0f;
 	float fizzleRateSphere = 0f;
 	
-	int distortVertices = 0;
+	int distortVertices = 1;
 	
 	Cube(){}
 	
@@ -170,7 +171,9 @@ public class Cube {
 		for(int i = 0; i < pulse.length; i++){
 			pulse[i] = new PVector(0, 0, 0);
 			pulse_origin[i] = new PVector(0, 0, 0);
-			
+			pulse_target[i] = new PVector(p.random(-100, 100), 0, 0);
+			pulse_val[i] = 0f;
+			canPulse[i] = false;
 			
 			pos[i] = new PVector(0, 0, 0);
 			pos_abs[i] = new PVector(0, 0, 0);
@@ -190,7 +193,7 @@ public class Cube {
 		}
 		
 
-//		drawBox(rad);
+		drawBox(rad, 1);
 	}
 	
 	void update(){
@@ -323,6 +326,7 @@ public class Cube {
 			start = end.copy();
 		}
 		
+		p.println(canPulse[0]);
 		for(int i =0; i < pulse.length; i++){
 			if(canPulse[i]){
 				pulse[i] = PVector.lerp(pulse_origin[i], pulse_target[i], pulse_val[i]);
@@ -464,23 +468,7 @@ public class Cube {
 		drawBox(radI, 0);
 		drawBox(radO, 2);
 		p.popMatrix();
-		
-//		p.pushMatrix();
-//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-//		p.rotateY(diagY);
-//		drawBox(rad, 1);
-//		drawBox(radI, 0);
-//		drawBox(radO, 2);
-//		p.popMatrix();
-		
-//		p.pushMatrix();
-//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-//		p.rotateZ(diagZ);
-//		drawBox(rad, 1);
-//		drawBox(radI, 0);
-//		drawBox(radO, 2);
-//		p.popMatrix();
-		
+
 		
 		p.stroke(100, 255, 100, cube_alpha*0.5f); //GREEN
 		
@@ -492,22 +480,6 @@ public class Cube {
 		drawBox(radO, 2);
 		p.popMatrix();
 		
-//		p.pushMatrix();
-//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-//		p.rotateY(diagY*2);
-//		drawBox(rad, 0);
-//		drawBox(radI, 0);
-//		drawBox(radO, 0);
-//		p.popMatrix();
-		
-//		p.pushMatrix();
-//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-//		p.rotateZ(diagZ*2);
-//		drawBox(rad, 1);
-//		drawBox(radI, 0);
-//		drawBox(radO, 2);
-//		p.popMatrix();
-		
 		
 		p.stroke(100, 100, 255, cube_alpha*0.5f);//BLUE
 		
@@ -518,21 +490,6 @@ public class Cube {
 		drawBox(radI, 0);
 		drawBox(radO, 2);
 		p.popMatrix();
-		
-//		p.pushMatrix();
-//		p.rotateY(-diagY);
-//		drawBox(rad, 1);
-//		drawBox(radI, 0);
-//		drawBox(radO, 2);
-//		p.popMatrix();
-		
-//		p.pushMatrix();
-//		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
-//		p.rotateZ(-diagZ);
-//		drawBox(rad, 1);
-//		drawBox(radI, 0);
-//		drawBox(radO, 2);
-//		p.popMatrix();
 		
 		p.stroke(255, cube_alpha*0.5f); //WHITE - ALPHA
 		p.strokeWeight(2);
@@ -725,10 +682,10 @@ public class Cube {
 	}
 	
 	void drawCircles(PVector r){
-		p.strokeWeight(1);
+		p.strokeWeight(2);
 //		p.noFill();
-		p.stroke(255, circles_alpha[0]);
-		p.fill(0, circles_alpha[0]);
+		p.stroke(circle_color, circles_alpha[0]);
+		p.fill(circle_color, circles_alpha[0]);
 		p.noFill();
 		int steps = 32;
 		p.pushMatrix();
@@ -739,7 +696,7 @@ public class Cube {
 		}
 		p.popMatrix();
 		
-		p.stroke(255, circles_alpha[1]);
+		p.stroke(circle_color, circles_alpha[1]);
 		p.pushMatrix();
 		p.rotateX(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));
 		for(int i = 0; i < steps; i++){
@@ -749,7 +706,7 @@ public class Cube {
 		}
 		p.popMatrix();
 		
-		p.stroke(255, circles_alpha[2]);
+		p.stroke(circle_color, circles_alpha[2]);
 		p.pushMatrix();
 		p.rotateX(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));
 		p.rotateY(PApplet.PI*0.5f*PApplet.map(r.z, 0, r.x, 0, 1));

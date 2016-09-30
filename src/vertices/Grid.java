@@ -182,7 +182,7 @@ public class Grid {
 			}
 		}else{
 			if(tunnel_perspective_alpha_coeff > 0){
-				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc;	
+				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc*2f;	
 			}
 		}
 		
@@ -206,18 +206,19 @@ public class Grid {
 		
 
 		
-		p.fill(0);
-		
-		p.strokeWeight(5);
-		p.strokeCap(PApplet.SQUARE);
-		p.pushMatrix();
-		p.translate(p.width*0.5f, p.height*0.5f, 5);
-		p.rectMode(PApplet.CENTER);
-		for(int i = 0; i < 300; i+= 100){
-			p.stroke(255-i);
-			p.rect(0, 0, backdrop_w+i, backdrop_h+i);
+		if(backdrop_expand){
+			p.fill(Vertices.bg_color);
+			p.strokeWeight(3);
+			p.strokeCap(PApplet.SQUARE);
+			p.pushMatrix();
+			p.translate(p.width*0.5f, p.height*0.5f, 5);
+			p.rectMode(PApplet.CENTER);
+			for(int i = 0; i < 300; i+= 100){
+				p.stroke(255-i);
+				p.rect(0, 0, backdrop_w+i, backdrop_h+i);
+			}
+			p.popMatrix();	
 		}
-		p.popMatrix();
 		
 		
 		p.strokeWeight(2);
