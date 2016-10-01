@@ -130,6 +130,15 @@ public class Vertices extends PApplet {
 	static float ts_outro_kick_cut = 218*1000f;
 	static float ts_outro_fade_out = 234*1000f;
 	
+	static float ts_outro_note_1 = 222f*1000f;
+	static float ts_outro_note_2 = 226*1000f;
+	static float ts_outro_note_3 = 228f*1000f;
+	static float ts_outro_note_4 = 230f*1000f;
+	
+	boolean note_1 = true;
+	boolean note_2 = true;
+	boolean note_3 = true;
+	boolean note_4 = true;
 	
 	float bpm_start_0 = 0;
 	float bpm_timer_0 = 1000;
@@ -260,15 +269,17 @@ public class Vertices extends PApplet {
 		if(entracte){
 			bg_color = lerp(0, 255, entracte_lerp_val);
 			cube.circle_color = lerp(255, 0, entracte_lerp_val);
+			grid.tunnel_color = lerp(255, 0, entracte_lerp_val);
 			
 			if(entracte_lerp_val < 1)
 				entracte_lerp_val += 0.0075f;
-		}else{
+		}else{			
+			bg_color = lerp(0, 255, entracte_lerp_val);
+//			cube.circle_color = lerp(255, 0, entracte_lerp_val);
+			grid.tunnel_color = lerp(255, 0, entracte_lerp_val);
+			
 			if(entracte_lerp_val > 0)
 				entracte_lerp_val -= 0.2f;
-			
-			bg_color = lerp(0, 255, entracte_lerp_val);
-			cube.circle_color = lerp(255, 0, entracte_lerp_val);
 		}
 		
 		for(int i = 0; i < partitions.size(); i++){
@@ -376,12 +387,17 @@ public class Vertices extends PApplet {
 		
 		
 		//show cube
-		if(millis() > ts_show_line && cube.canExpand.x != 1){
+		if(millis() > ts_show_line){
+//			cube.canRotateStep = true;
 			cube.canRotateStep = true;
 			cube.canShowEdges = true;
 			canDisplayBlocks = false;
 			cube.canExpand.x = 1;
 		}
+		
+//		if(millis() > ts_show_line+2000){
+//			
+//		}
 		
 		if(millis() > ts_rotate_2D){
 			cube.canExpand.y = 1;
@@ -413,9 +429,12 @@ public class Vertices extends PApplet {
 		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
 			cube.canFizzleCube = true;
 			cube.canGlitchCircles = true;
+			grid.tunnel_random_range = 1f;
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
+			grid.tunnel_perspective_threshold = 0.075f;
+			grid.tunnel_random_range = 0f;
 			cube.canFizzleCube = false;
 //			grid.canShowTunnelPerspective = false;
 			cube.canGlitchCircles = false;
@@ -427,6 +446,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_break_cut_drums){
+			grid.canShowTunnelPerspective = false;
 			cube.canGlitchCircles = false;
 			cube.canRotateStep = false; 
 			cube.constant_rotateX = true;
@@ -446,6 +466,8 @@ public class Vertices extends PApplet {
 			grid.canDisplayParticles = false;
 			grid.canShowTunnelPerspective = true;
 			grid.canDisplayTunnelSides = true;
+			grid.tunnel_random_range = 0.5f;
+			
 			cube.canShowCircles = false;
 			cube.canShowEdges = true;
 			cube.canRotateStep = true;
@@ -454,23 +476,41 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_pads_post_cut){
+			grid.tunnel_num = 4;
+			grid.tunnel_random_range = 0.75f;
+			
 			cube.pulse_range = 30;
 		}
 		
 		if(millis() > ts_start_fizzle){
+			grid.tunnel_num = 8;
+			grid.tunnel_side_threshold = 0.15f;
+			
 			cube.canFizzleMoreCube = true;
-		}
-		
-		if(millis() > ts_start_fizzle_more){
 			cube.pulse_range = 40;
 		}
 		
+		if(millis() > ts_start_fizzle_more){
+			grid.tunnel_random_range = 1.25f;
+			grid.tunnel_num = 13;
+			
+			cube.pulse_range = 50;
+		}
+		
 		if(millis() > ts_congas_vertices){
+			grid.tunnel_num = 20;
+			grid.tunnel_random_range = 2f;
+			
 			cube.pulse_range = 60;
 			cube.distortVertices = 1;
 		}
 		
 		if(millis() > ts_outro_kick_cut){
+			grid.tunnel_num = 1;
+			grid.tunnel_random_range = 0.5f;
+			grid.tunnel_side_threshold = 0.45f;
+			grid.tunnel_perspective_threshold = 0.05f;
+			
 			cube.canRotateStep = false;
 			cube.canShowCircles = false;
 			cube.canShowDiagonals = false;
@@ -479,6 +519,27 @@ public class Vertices extends PApplet {
 			cube.constant_rotateY = false;
 			cube.constant_rotateZ = false;
 			cube.distortVertices = 2;
+		}
+		
+		if(millis() > ts_outro_note_1 && note_1){
+			cube.pulse_inc = 0.075f;
+			cube.pulse_range *= 0.7f;
+			moveVertex(0);
+			note_1 = false;
+		}else if(millis() > ts_outro_note_2 && note_2){
+//			cube.pulse_range *= 0.9f;
+			moveVertex(0);
+			note_2 = false;
+		}else if(millis() > ts_outro_note_3 && note_3){
+//			cube.pulse_range *= 0.9f;
+			moveVertex(0);
+			note_3 = false;
+		}else if(millis() > ts_outro_note_4 && note_4){
+//			cube.pulse_range *= 0.9f;
+			moveVertex(0);
+			note_4 = false;
+		}else{
+			//leave it be
 		}
 		
 		if(millis() > ts_outro_fade_out){

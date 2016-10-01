@@ -294,13 +294,13 @@ public class Cube {
 //		rad.y = PApplet.constrain(Vertices.c_height, 0, rad.x);
 		
 		if(canExpand.x == 1 && rad.x < maxRad)
-			rad.x += expand_rate;
+			rad.x += expand_rate*4f;
 		
 		if(canExpand.y == 1 && rad.y < maxRad)
 			rad.y += expand_rate;
 		
 		if(canExpand.z == 1 && rad.z < maxRad)
-			rad.z += expand_rate*2f;
+			rad.z += expand_rate*1.75f;
 			
 		rad.z = PApplet.constrain(rad.z, 0, rad.x);
 		rad.y = PApplet.constrain(rad.y, 0, rad.x);
@@ -362,8 +362,8 @@ public class Cube {
 			if(fizzleRate < 2.5f)
 				fizzleRate += 0.075f;
 		}else if(canFizzleCube){
-			if(fizzleRate < 1.5f)
-				fizzleRate += 0.1f;
+			if(fizzleRate < 1.75f)
+				fizzleRate += 0.0025f;
 		}
 		
 		
@@ -381,7 +381,7 @@ public class Cube {
 		
 		if(canGlitchCircles){
 			for(int i = 0; i < circles_alpha.length; i++){
-				if(p.noise(p.millis()*0.04f+i*0.5f) > 0.75f)
+				if(p.noise(p.millis()*0.045f+i*0.75f) > 0.7f)
 					circles_alpha[i] = 255;
 				else
 					circles_alpha[i] = 0;
@@ -460,7 +460,7 @@ public class Cube {
 //		p.strokeWeight(sw);
 		p.strokeWeight(1);
 //		p.fill(0);
-		p.stroke(255, 100, 100, cube_alpha*0.5f);//RED
+		p.stroke(255, 100, 100, cube_alpha*0.75f);//RED
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -471,7 +471,7 @@ public class Cube {
 		p.popMatrix();
 
 		
-		p.stroke(100, 255, 100, cube_alpha*0.5f); //GREEN
+		p.stroke(100, 255, 100, cube_alpha*0.75f); //GREEN
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -482,7 +482,7 @@ public class Cube {
 		p.popMatrix();
 		
 		
-		p.stroke(100, 100, 255, cube_alpha*0.5f);//BLUE
+		p.stroke(100, 100, 255, cube_alpha*0.75f);//BLUE
 		
 		p.pushMatrix();
 		p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
@@ -606,7 +606,7 @@ public class Cube {
 //			p.text(""+i, pos[i].x, pos[i].y, pos[i].z);
 //		}
 		
-		if(canShowDiagonals)
+		if(canShowDiagonals && type != 2)
 			drawDiagonals(pos);
 		
 		
@@ -684,10 +684,9 @@ public class Cube {
 	
 	void drawCircles(PVector r){
 		p.strokeWeight(2);
-//		p.noFill();
-		p.stroke(circle_color, circles_alpha[0]);
-		p.fill(circle_color, circles_alpha[0]);
 		p.noFill();
+		p.stroke(circle_color, circles_alpha[0]);
+//		p.fill(PApplet.abs(circle_color-255), circles_alpha[0]);
 		int steps = 32;
 		p.pushMatrix();
 		for(int i = 0; i < steps; i++){
