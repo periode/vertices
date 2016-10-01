@@ -130,7 +130,7 @@ public class Vertices extends PApplet {
 	static float ts_outro_kick_cut = 218*1000f;
 	static float ts_outro_fade_out = 234*1000f;
 	
-	static float ts_outro_note_1 = 222f*1000f;
+	static float ts_outro_note_1 = 222.5f*1000f;
 	static float ts_outro_note_2 = 226*1000f;
 	static float ts_outro_note_3 = 228f*1000f;
 	static float ts_outro_note_4 = 230f*1000f;
@@ -429,11 +429,11 @@ public class Vertices extends PApplet {
 		if(millis() > ts_arpeggios_in && millis() < ts_arpeggios_out){
 			cube.canFizzleCube = true;
 			cube.canGlitchCircles = true;
-			grid.tunnel_random_range = 1f;
+			grid.tunnel_random_range = 0.75f;
 		}
 		
 		if(millis() > ts_break_cut_kick && millis() < ts_kick_back){
-			grid.tunnel_perspective_threshold = 0.075f;
+			grid.tunnel_perspective_threshold = 0.9f;
 			grid.tunnel_random_range = 0f;
 			cube.canFizzleCube = false;
 //			grid.canShowTunnelPerspective = false;
@@ -446,7 +446,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_break_cut_drums){
-			grid.canShowTunnelPerspective = false;
+//			grid.canShowTunnelPerspective = false;
 			cube.canGlitchCircles = false;
 			cube.canRotateStep = false; 
 			cube.constant_rotateX = true;
@@ -464,7 +464,7 @@ public class Vertices extends PApplet {
 		if(millis() > ts_kick_back){
 			entracte = false;
 			grid.canDisplayParticles = false;
-			grid.canShowTunnelPerspective = true;
+//			grid.canShowTunnelPerspective = true;
 			grid.canDisplayTunnelSides = true;
 			grid.tunnel_random_range = 0.5f;
 			
@@ -523,7 +523,7 @@ public class Vertices extends PApplet {
 		
 		if(millis() > ts_outro_note_1 && note_1){
 			cube.pulse_inc = 0.075f;
-			cube.pulse_range *= 0.7f;
+//			cube.pulse_range *= 0.7f;
 			moveVertex(0);
 			note_1 = false;
 		}else if(millis() > ts_outro_note_2 && note_2){

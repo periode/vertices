@@ -59,7 +59,7 @@ public class Grid {
 	float tunnel_alpha_coeff = 0;
 	float tunnel_edges_alpha_coeff = 0;
 	float tunnel_perspective_alpha_coeff = 0;
-	float tunnel_alpha_inc = 0.01f;
+	float tunnel_alpha_inc = 0.005f;
 	
 	float modulo_step = 0;
 	int[] tunnel_step;
