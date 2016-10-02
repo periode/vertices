@@ -507,7 +507,9 @@ public class Cube {
 		p.popMatrix();
 		
 		drawBox(radI, 0);
-		p.strokeWeight(3);
+		p.strokeWeight(5);
+		drawBox(radO, 2);
+		drawBox(radO, 2);
 		drawBox(radO, 2);
 		
 		
@@ -720,12 +722,14 @@ public class Cube {
 	
 	void drawDiagonals(PVector[] pos){
 		p.stroke(255, cube_alpha);
+		p.strokeWeight(2);
 		for(int i = 0; i < pos.length; i++){
 			for(int j = 0; j < pos.length-1; j++){
 				p.pushMatrix();
 				p.translate(p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate, p.random(-1f, 1f)*fizzleRate);
 				for(float k = 0; k < 10; k++){
-					if(p.noise(p.millis()*0.0001f, k) > 0.45f)
+//					if(p.noise(p.millis()*0.0001f, k) > 0.45f)
+					p.stroke(Grid.col[(int) p.random(Grid.col.length)], PApplet.map(p.noise(p.millis()*0.001f, k), 0f, 1f, -150f, 300f));
 						p.line(PApplet.lerp(pos[i].x, pos[j].x, k*0.1f), PApplet.lerp(pos[i].y, pos[j].y, k*0.1f), PApplet.lerp(pos[i].z, pos[j].z, k*0.1f), PApplet.lerp(pos[i].x, pos[j].x, (k+1)*0.1f), PApplet.lerp(pos[i].y, pos[j].y, (k+1)*0.1f), PApplet.lerp(pos[i].z, pos[j].z, (k+1)*0.1f));
 				}
 				p.popMatrix();

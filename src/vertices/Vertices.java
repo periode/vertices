@@ -127,7 +127,7 @@ public class Vertices extends PApplet {
 	
 	static float ts_congas_vertices = 186*1000f;
 	
-	static float ts_outro_kick_cut = 218*1000f;
+	static float ts_outro_kick_cut = 217.5f*1000f;
 	static float ts_outro_fade_out = 234*1000f;
 	
 	static float ts_outro_note_1 = 222.5f*1000f;
@@ -453,6 +453,7 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_break_full_cut){
+			grid.canShowTunnelPerspective = false;
 			cube.constant_rotateY = true;
 			cube.constant_rotateZ = true;
 		}
@@ -464,7 +465,8 @@ public class Vertices extends PApplet {
 		if(millis() > ts_kick_back){
 			entracte = false;
 			grid.canDisplayParticles = false;
-//			grid.canShowTunnelPerspective = true;
+			grid.canShowTunnelPerspective = true;
+			grid.tunnel_perspective_threshold = 0.3f;
 			grid.canDisplayTunnelSides = true;
 			grid.tunnel_random_range = 0.5f;
 			
@@ -476,14 +478,15 @@ public class Vertices extends PApplet {
 		}
 		
 		if(millis() > ts_pads_post_cut){
-			grid.tunnel_num = 4;
+			grid.tunnel_num = 1;
 			grid.tunnel_random_range = 0.75f;
 			
 			cube.pulse_range = 30;
 		}
 		
 		if(millis() > ts_start_fizzle){
-			grid.tunnel_num = 8;
+			grid.tunnel_num = 2;
+			grid.tunnelRGB = true;
 			grid.tunnel_side_threshold = 0.15f;
 			
 			cube.canFizzleMoreCube = true;
@@ -492,13 +495,13 @@ public class Vertices extends PApplet {
 		
 		if(millis() > ts_start_fizzle_more){
 			grid.tunnel_random_range = 1.25f;
-			grid.tunnel_num = 13;
+			grid.tunnel_num = 3;
 			
 			cube.pulse_range = 50;
 		}
 		
 		if(millis() > ts_congas_vertices){
-			grid.tunnel_num = 20;
+			grid.tunnel_num = 4;
 			grid.tunnel_random_range = 2f;
 			
 			cube.pulse_range = 60;
@@ -510,6 +513,7 @@ public class Vertices extends PApplet {
 			grid.tunnel_random_range = 0.5f;
 			grid.tunnel_side_threshold = 0.45f;
 			grid.tunnel_perspective_threshold = 0.05f;
+			grid.tunnelRGB = false;
 			
 			cube.canRotateStep = false;
 			cube.canShowCircles = false;
@@ -524,19 +528,19 @@ public class Vertices extends PApplet {
 		if(millis() > ts_outro_note_1 && note_1){
 			cube.pulse_inc = 0.075f;
 //			cube.pulse_range *= 0.7f;
-			moveVertex(0);
+			moveVertex(1);
 			note_1 = false;
 		}else if(millis() > ts_outro_note_2 && note_2){
 //			cube.pulse_range *= 0.9f;
-			moveVertex(0);
+			moveVertex(1);
 			note_2 = false;
 		}else if(millis() > ts_outro_note_3 && note_3){
 //			cube.pulse_range *= 0.9f;
-			moveVertex(0);
+			moveVertex(1);
 			note_3 = false;
 		}else if(millis() > ts_outro_note_4 && note_4){
 //			cube.pulse_range *= 0.9f;
-			moveVertex(0);
+			moveVertex(1);
 			note_4 = false;
 		}else{
 			//leave it be
@@ -853,8 +857,11 @@ public class Vertices extends PApplet {
 		if(key == '3')
 			cube.canExpand.z = 1;
 	
-		if(key == ' ')
-			cube.canScale = true;
+		if(key == 'a')
+			moveVertex(0);
+		
+		if(key == 's')
+			moveVertex(1);
 
 			
 	}

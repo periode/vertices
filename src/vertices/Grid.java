@@ -59,7 +59,7 @@ public class Grid {
 	float tunnel_alpha_coeff = 0;
 	float tunnel_edges_alpha_coeff = 0;
 	float tunnel_perspective_alpha_coeff = 0;
-	float tunnel_alpha_inc = 0.005f;
+	float tunnel_alpha_inc = 0.01f;
 	
 	float modulo_step = 0;
 	int[] tunnel_step;
@@ -78,6 +78,9 @@ public class Grid {
 	
 	float tunnel_perspective_threshold = 0.01f;
 
+	static int[] col;
+	
+	boolean tunnelRGB = false;
 	
 	Grid(PApplet _p){
 		p = _p;
@@ -133,6 +136,13 @@ public class Grid {
 			tunnel_perspective_lerp_val[j] = 0;
 		}
 		
+		col = new int[6];
+		col[0] = p.color(155, 0, 0);
+		col[1] = p.color(0, 155, 0);
+		col[2] = p.color(0, 0, 155);
+		col[3] = 255;
+		col[4] = 255;
+		col[5] = 0;
 
 	}
 	
@@ -188,7 +198,7 @@ public class Grid {
 			}
 		}else{
 			if(tunnel_perspective_alpha_coeff > 0){
-				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc*2f;	
+				tunnel_perspective_alpha_coeff -= tunnel_alpha_inc*0.75f;	
 			}
 		}
 		
@@ -234,18 +244,15 @@ public class Grid {
 		
 		
 
-			if(canDisplayParticles)
-				displayParticles();
+		if(canDisplayParticles)
+			displayParticles();
 
-
-
-		
 		if(backdrop_expand)
 			displayFrame();
 		
-		for(int i = 0; i < (int)PApplet.map(p.mouseX, 0, p.width, 1, 3); i++){
+		for(int i = 0; i < tunnel_num; i++){
 			p.pushMatrix();
-			p.translate(p.random(-tunnel_random_range*5, tunnel_random_range*5), p.random(-tunnel_random_range, tunnel_random_range), p.random(-tunnel_random_range, tunnel_random_range)); 
+			p.translate(p.random(-tunnel_random_range*5, tunnel_random_range*5), p.random(-tunnel_random_range*0.5f, tunnel_random_range*0.5f), p.random(-tunnel_random_range*0.5f, tunnel_random_range*0.5f)); 
 			if(canDisplayTunnel)
 				displayTunnel();
 			p.popMatrix();
@@ -253,6 +260,9 @@ public class Grid {
 	}
 	
 	void displayTunnel(){
+
+		int col_index = (int)p.random(col.length);
+		
 		for(int i = 0; i < tunnel_depth.length; i++){
 			p.strokeWeight(1);
 			p.pushMatrix();
@@ -280,6 +290,9 @@ public class Grid {
 			
 			p.strokeWeight(2);
 			p.stroke(tunnel_color, (int)(c*2f)*tunnel_perspective_alpha_coeff);
+			
+			if(tunnelRGB)
+				p.stroke(col[col_index], (int)(c*2f)*tunnel_perspective_alpha_coeff);
 			
 //			 && p.noise(p.millis()*0.001f, i*0.75f) > 0.5f
 			if(w2 > w){
@@ -315,6 +328,9 @@ public class Grid {
 			
 			
 			p.stroke(tunnel_color, (int)(c*2f)*tunnel_edges_alpha_coeff);
+			
+			if(tunnelRGB)
+				p.stroke(col[col_index], (int)(c*2f)*tunnel_edges_alpha_coeff);
 			
 			if(canDisplayTunnelSides){
 				if(tunnel_lerp_val[i] < 1){
@@ -401,12 +417,12 @@ public class Grid {
 	void displayStrokes(){
 		p.strokeWeight(1);
 		for(int i = 1; i < points.length-1; i++){
-			if(p.noise(i, p.millis()*0.003f) > threshold_h_r && points[i].y != p.height){
+			if(p.noise(i, p.millis()*0.0003f) > 0.7f && points[i].y != p.height){
 				
 				p.line(points[i].x, points[i].y, points[i+1].x, points[i+1].y);
 			}
 			
-			if(p.noise(i-1, p.millis()*0.0003f) > threshold_w_r && points[i].x != 0 && i > rows+1){
+			if(p.noise(i-1, p.millis()*0.00003f) > 0.7f && points[i].x != 0 && i > rows+1){
 				
 				p.line(points[i].x, points[i].y, points[i-rows-1].x, points[i-rows-1].y);
 			}
